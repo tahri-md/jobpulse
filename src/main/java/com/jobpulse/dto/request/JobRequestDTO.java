@@ -43,7 +43,9 @@ public enum JobType {
     EMAIL,
     HTTP_CALL,
     DATA_CLEANUP,
-    REPORT_GENERATION
+    REPORT_GENERATION,
+    SCRIPT,
+    LOG
 }
 
 @Getter

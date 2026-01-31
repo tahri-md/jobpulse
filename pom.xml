@@ -36,7 +36,13 @@
             <artifactId>jjwt-api</artifactId>
             <version>0.12.6</version>
         </dependency>
-        
+        <!-- Source: https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-webflux</artifactId>
+    <version>7.0.3</version>
+    <scope>compile</scope>
+</dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>

@@ -35,6 +35,8 @@ public class JobService {
     private UserRepository userRepository;
     @Autowired
     RedisTemplate<String, String> redisTemplate;
+    @Autowired
+    JobExecutorFactory executorFactory;
 
     @Autowired
     private DeadLetterJobRepository deadLetterJobRepository;
@@ -64,6 +66,7 @@ public class JobService {
         job.setRetryCount(0);
         job.setStatus(Status.SCHEDULED);
         job.setLastError(null);
+        job.setPayload(dto.getPayload());
 
         JobRequestDTO.ScheduleDTO scheduleDTO = dto.getSchedule();
 
@@ -120,6 +123,7 @@ public class JobService {
                 .stream()
                 .filter(job -> job.getNextRunTime() != null &&
                         !job.getNextRunTime().isAfter(LocalDateTime.now()))
+                .filter(job -> job.getStatus().equals(Status.SCHEDULED))
                 .toList();
 
         for (Job job : dueJobs) {
@@ -136,7 +140,8 @@ public class JobService {
 
     private void executeJob(Job job) {
         try {
-            System.out.println("Executing job " + job.getId());
+            JobExecutor executor = executorFactory.get(job.getJobType());
+            executor.execute(job);
 
             job.setStatus(Status.SUCCESS);
             job.setRetryCount(0);

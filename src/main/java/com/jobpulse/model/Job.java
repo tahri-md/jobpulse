@@ -2,6 +2,8 @@ package com.jobpulse.model;
 
 import java.time.LocalDateTime;
 
+import com.jobpulse.dto.request.JobRequestDTO.JobType;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -31,6 +33,8 @@ public class Job {
     private User owner;
     private String cronExpression;
     private boolean recurring;
+    private JobType jobType;
+    private String payload;
     @Enumerated(EnumType.STRING)
     private Status status;
     private int retryCount;
