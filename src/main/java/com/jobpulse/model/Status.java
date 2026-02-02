@@ -1,5 +1,5 @@
 package com.jobpulse.model;
 
 public enum Status {
-    PENDING,SCHEDULED,RUNNING,SUCCESS,FAILED
+    PENDING, RUNNING, SUCCESS, RETRYING, FAILED, PAUSED
 }

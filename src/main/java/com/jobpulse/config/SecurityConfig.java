@@ -34,10 +34,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterConfig(HttpSecurity http) throws Exception {
         http
-                .csrf(a -> a.disable())
+                .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register").permitAll()
+                        .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -48,11 +49,12 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
-      @Bean
+
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://192.168.1.101:3000", "http://192.168.1.101:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1:3000"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);

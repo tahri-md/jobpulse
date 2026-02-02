@@ -18,6 +18,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -37,13 +39,23 @@ public class User implements UserDetails {
     private String username;
     private String email;
     private String password;
+    private String avatar;
+    
     @Enumerated(EnumType.STRING)
     private Role role;
-    @OneToMany(mappedBy = "user")
-    @JoinColumn(name = "user_id")
+    
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private AuthProvider provider = AuthProvider.NATIVE;
+    
+    private String providerId;
+    
+    @OneToMany(mappedBy = "owner")
     private List<Job> jobs;
+    
     @CreatedDate
     private LocalDateTime createdAt;
+    
     @LastModifiedDate
     private LocalDateTime updatedAt;
     @Override

@@ -12,4 +12,3 @@ public class HttpJobPayload {
     public Object body;
     public Integer timeoutSeconds;
 }
-

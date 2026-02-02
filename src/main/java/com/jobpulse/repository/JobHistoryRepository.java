@@ -12,8 +12,11 @@ import java.util.List;
 
 
 @Repository
-public interface JobHistoryRepository extends JpaRepository<JobHistory,Long> {
+public interface JobHistoryRepository extends JpaRepository<JobHistory, Long> {
     boolean existsByJob(Job job);
-    @Query("select from jobHistory orderby runTime desc limit 1")
-    Optional<JobHistory> findByJob(Job job);
+    
+    List<JobHistory> findByJobOrderByRunTimeDesc(Job job);
+    
+    @Query("SELECT jh FROM JobHistory jh WHERE jh.job = :job ORDER BY jh.runTime DESC LIMIT 1")
+    Optional<JobHistory> findLatestByJob(Job job);
 }

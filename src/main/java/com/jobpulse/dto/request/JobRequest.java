@@ -2,20 +2,15 @@ package com.jobpulse.dto.request;
 
 import java.time.LocalDateTime;
 
-import com.jobpulse.model.Status;
-
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -23,11 +18,21 @@ import lombok.Setter;
 @Builder
 public class JobRequest {
 
+    @NotBlank(message = "Job name is required")
     private String name;
+
     private String cronExpression;
+
     private boolean recurring;
+
+    @Min(value = 0, message = "Retry count cannot be negative")
     private int retryCount;
+
+    @NotNull(message = "Max retries is required")
+    @Min(value = 0, message = "Max retries cannot be negative")
     private int maxRetries;
+
     private LocalDateTime nextRunTime;
+
     private String lastError;
 }

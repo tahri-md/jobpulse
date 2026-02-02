@@ -1,9 +1,11 @@
 package com.jobpulse.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.jobpulse.dto.request.JobRequestDTO.JobType;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -12,11 +14,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,4 +45,7 @@ public class Job {
     private int maxRetries;
     private LocalDateTime nextRunTime;
     private String lastError;
+    @OneToMany(mappedBy = "job", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<DeadLetterJob> deadLetterJobs;
+
 }

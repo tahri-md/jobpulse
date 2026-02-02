@@ -1,21 +1,21 @@
 package com.jobpulse.config;
 
-
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-@Service
+
+@Component
 public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     JwtService jwtService;
@@ -49,6 +49,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.equals("/api/v1/auth/login")
+                || path.equals("/api/v1/auth/register");
     }
 
 }

@@ -26,4 +26,3 @@ public class JobExecutorFactory {
         return executors.get(type);
     }
 }
-
