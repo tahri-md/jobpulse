@@ -1,0 +1,51 @@
+export enum Status {
+  PENDING = 'PENDING',
+  RUNNING = 'RUNNING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  RETRYING = 'RETRYING',
+  PAUSED = 'PAUSED'
+}
+
+export enum Role {
+  USER = 'USER',
+  ADMIN = 'ADMIN'
+}
+
+export enum AuthProvider {
+  LOCAL = 'LOCAL',
+  GOOGLE = 'GOOGLE',
+  GITHUB = 'GITHUB'
+}
+
+export enum JobType {
+  EMAIL = 'EMAIL',
+  HTTP_CALL = 'HTTP_CALL',
+  DATA_CLEANUP = 'DATA_CLEANUP',
+  REPORT_GENERATION = 'REPORT_GENERATION',
+  SCRIPT = 'SCRIPT',
+  LOG = 'LOG'
+}
+
+export enum ScheduleType {
+  ONE_TIME = 'ONE_TIME',
+  RECURRING = 'RECURRING',
+  CRON = 'CRON'
+}
+
+export enum TimeUnit {
+  MINUTES = 'MINUTES',
+  HOURS = 'HOURS',
+  DAYS = 'DAYS'
+}
+
+export enum JobFailureReason {
+  TIMEOUT = 'TIMEOUT',
+  CONNECTION_ERROR = 'CONNECTION_ERROR',
+  INVALID_PAYLOAD = 'INVALID_PAYLOAD',
+  AUTHENTICATION_FAILED = 'AUTHENTICATION_FAILED',
+  RATE_LIMITED = 'RATE_LIMITED',
+  SERVER_ERROR = 'SERVER_ERROR',
+  SCRIPT_ERROR = 'SCRIPT_ERROR',
+  UNKNOWN = 'UNKNOWN'
+}
