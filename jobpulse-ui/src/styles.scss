@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ───────────── DARK THEME (default) ───────────── */
+:root,
+[data-theme="dark"] {
+  --bg-root: #0e0e0e;
+  --bg-surface: #161616;
+  --bg-elevated: #1c1c1c;
+  --bg-input: #111;
+  --bg-hover: #1f1f1f;
+  --bg-sidebar: #0a0a0a;
+  --bg-auth: #0a0a0a;
+
+  --border: #232323;
+  --border-subtle: #1c1c1c;
+  --border-hover: #3a3a3a;
+
+  --text-primary: #f0f0f0;
+  --text-secondary: #b0b0b0;
+  --text-muted: #6a6a6a;
+  --text-faint: #444;
+  --text-input: #d5d5d5;
+  --text-placeholder: #4a4a4a;
+
+  --accent: #ecc94b;
+  --accent-hover: #f6e05e;
+  --accent-muted: rgba(236, 201, 75, 0.12);
+  --accent-text: #000;
+
+  --danger: #f56565;
+  --danger-muted: rgba(245, 101, 101, 0.12);
+  --danger-border: rgba(245, 101, 101, 0.25);
+
+  --success: #48bb78;
+  --success-muted: rgba(72, 187, 120, 0.12);
+
+  --badge-type-bg: #252525;
+  --badge-type-text: #a0a0a0;
+  --badge-pending-bg: #252525;
+  --badge-pending-text: #888;
+  --badge-running-bg: rgba(236, 201, 75, 0.15);
+  --badge-running-text: #ecc94b;
+  --badge-success-bg: rgba(72, 187, 120, 0.1);
+  --badge-success-text: #48bb78;
+  --badge-failed-bg: rgba(245, 101, 101, 0.1);
+  --badge-failed-text: #f56565;
+  --badge-retrying-bg: rgba(236, 201, 75, 0.1);
+  --badge-retrying-text: #ecc94b;
+  --badge-paused-bg: #1e1e1e;
+  --badge-paused-text: #888;
+  --badge-dead-bg: rgba(245, 101, 101, 0.1);
+  --badge-dead-text: #f56565;
+
+  --code-bg: #0b0b0b;
+  --code-border: #1a1a1a;
+
+  --toast-bg: #1e1e1e;
+  --toast-border: #333;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
+
+  --scrollbar-thumb: #333;
+  --scrollbar-hover: #555;
+
+  color-scheme: dark;
+}
+
+/* ───────────── LIGHT THEME ───────────── */
+[data-theme="light"] {
+  --bg-root: #f5f5f0;
+  --bg-surface: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-input: #f8f8f5;
+  --bg-hover: #f0f0eb;
+  --bg-sidebar: #fafaf7;
+  --bg-auth: #f0f0eb;
+
+  --border: #e0ddd5;
+  --border-subtle: #e8e6de;
+  --border-hover: #ccc9c0;
+
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-muted: #888;
+  --text-faint: #aaa;
+  --text-input: #1a1a1a;
+  --text-placeholder: #aaa;
+
+  --accent: #c9a80e;
+  --accent-hover: #b8990a;
+  --accent-muted: rgba(201, 168, 14, 0.1);
+  --accent-text: #000;
+
+  --danger: #e53e3e;
+  --danger-muted: rgba(229, 62, 62, 0.08);
+  --danger-border: rgba(229, 62, 62, 0.25);
+
+  --success: #38a169;
+  --success-muted: rgba(56, 161, 105, 0.1);
+
+  --badge-type-bg: #f0eeea;
+  --badge-type-text: #6a6a6a;
+  --badge-pending-bg: #f0eeea;
+  --badge-pending-text: #888;
+  --badge-running-bg: rgba(201, 168, 14, 0.12);
+  --badge-running-text: #a88f0c;
+  --badge-success-bg: rgba(56, 161, 105, 0.1);
+  --badge-success-text: #38a169;
+  --badge-failed-bg: rgba(229, 62, 62, 0.08);
+  --badge-failed-text: #e53e3e;
+  --badge-retrying-bg: rgba(201, 168, 14, 0.1);
+  --badge-retrying-text: #a88f0c;
+  --badge-paused-bg: #f0eeea;
+  --badge-paused-text: #888;
+  --badge-dead-bg: rgba(229, 62, 62, 0.08);
+  --badge-dead-text: #e53e3e;
+
+  --code-bg: #f8f8f5;
+  --code-border: #e0ddd5;
+
+  --toast-bg: #ffffff;
+  --toast-border: #e0ddd5;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+
+  --scrollbar-thumb: #d0cdc5;
+  --scrollbar-hover: #b0ada5;
+
+  color-scheme: light;
+}
+
+/* ───────────── BASE RESET ───────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  color: var(--text-primary);
+  background: var(--bg-root);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  color-scheme: inherit;
+}
+
+::selection {
+  background: var(--accent-muted);
+  color: var(--text-primary);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover);
+}
