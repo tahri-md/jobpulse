@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,7 +41,7 @@ public class OAuthService {
     @Value("${oauth.google.client-secret}")
     private String googleClientSecret;
 
-    @Value("${gmail.oauth.redirect-uri}")
+    @Value("${oauth.google.redirect-uri}")
     private String googleRedirectUri;
 
     private static final String GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -85,17 +88,17 @@ public class OAuthService {
      */
     private JsonNode exchangeGoogleCodeForTokens(String code) {
         try {
-            Map<String, String> body = Map.of(
-                    "code", code,
-                    "client_id", googleClientId,
-                    "client_secret", googleClientSecret,
-                    "redirect_uri", googleRedirectUri,
-                    "grant_type", "authorization_code");
+            MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+            formData.add("code", code);
+            formData.add("client_id", googleClientId);
+            formData.add("client_secret", googleClientSecret);
+            formData.add("redirect_uri", googleRedirectUri);
+            formData.add("grant_type", "authorization_code");
 
             String response = webClient.post()
                     .uri(GOOGLE_TOKEN_URL)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(body)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(BodyInserters.fromFormData(formData))
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
