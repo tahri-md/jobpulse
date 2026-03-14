@@ -15,8 +15,7 @@ public class CronExpressionUtil {
             return false;
         }
         try {
-            CronExpression.isValidExpression(cronExpression);
-            return true;
+            return CronExpression.isValidExpression(cronExpression);
         } catch (Exception e) {
             return false;
         }
