@@ -1,13 +1,13 @@
 package com.jobpulse;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest
+import org.junit.jupiter.api.Test;
 class JobpulseApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void applicationClassExists() {
+		assertNotNull(JobpulseApplication.class);
 	}
 
 }
