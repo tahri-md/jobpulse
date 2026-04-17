@@ -286,8 +286,10 @@ export class JobCreateComponent implements OnInit {
         this.toast.warning('Please specify when to execute the job.');
         return;
       }
-      // Send as LocalDateTime format (yyyy-MM-ddTHH:mm:ss) without timezone
-      this.job.schedule.runAt = this.executeAtStr + ':00';
+      const localDate = new Date(this.executeAtStr);
+      const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+      const isoString = utcDate.toISOString().slice(0, 19);
+      this.job.schedule.runAt = isoString;
     }
 
     this.submitting = true;
