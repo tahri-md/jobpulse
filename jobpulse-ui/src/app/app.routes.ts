@@ -27,8 +27,11 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent) },
       { path: 'jobs', loadComponent: () => import('./pages/jobs/job-list/job-list.component').then(m => m.JobListComponent) },
+      { path: 'jobs/search', loadComponent: () => import('./pages/jobs/job-search/job-search.component').then(m => m.JobSearchComponent) },
       { path: 'jobs/create', loadComponent: () => import('./pages/jobs/job-create/job-create.component').then(m => m.JobCreateComponent) },
       { path: 'jobs/:id', loadComponent: () => import('./pages/jobs/job-detail/job-detail.component').then(m => m.JobDetailComponent) },
+      { path: 'templates', loadComponent: () => import('./pages/templates/templates.component').then(m => m.JobTemplatesComponent) },
+      { path: 'templates/:id/edit', loadComponent: () => import('./pages/templates/template-edit/template-edit.component').then(m => m.TemplateEditComponent) },
       { path: 'dead-letter', loadComponent: () => import('./pages/dead-letter/dead-letter.component').then(m => m.DeadLetterComponent) },
       { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }

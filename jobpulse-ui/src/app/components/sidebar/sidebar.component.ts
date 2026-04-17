@@ -43,6 +43,10 @@ import { ThemeService } from '../../services/theme.service';
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2L2 7v6l8 5 8-5V7L10 2zm0 3l5 3-5 3-5-3 5-3z"/></svg>
           <span class="nav-label">Dead Letter Queue</span>
         </a>
+        <a routerLink="/templates" routerLinkActive="active" class="nav-item" [title]="collapsed() ? 'Templates' : ''">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M4 4h12v2H4zm0 5h12v2H4zm0 5h12v2H4z"/></svg>
+          <span class="nav-label">Templates</span>
+        </a>
 
         <div class="nav-divider"></div>
 

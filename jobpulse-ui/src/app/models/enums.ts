@@ -49,3 +49,16 @@ export enum JobFailureReason {
   SCRIPT_ERROR = 'SCRIPT_ERROR',
   UNKNOWN = 'UNKNOWN'
 }
+
+export enum NotificationType {
+  JOB_SUCCESS = 'JOB_SUCCESS',
+  JOB_FAILED = 'JOB_FAILED',
+  JOB_PAUSED = 'JOB_PAUSED',
+  JOB_RESUMED = 'JOB_RESUMED',
+  DEAD_LETTER_QUEUE = 'DEAD_LETTER_QUEUE'
+}
+
+export enum NotificationChannel {
+  EMAIL = 'EMAIL',
+  IN_APP = 'IN_APP'
+}
