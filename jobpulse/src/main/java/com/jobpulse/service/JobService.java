@@ -367,6 +367,59 @@ public class JobService {
         return mapToJobResponse(jobRepository.save(job));
     }
 
+    public void bulkOperation(List<Long> jobIds, String operation, User user) {
+        List<Job> jobs = jobRepository.findByOwner(user).stream()
+                .filter(j -> jobIds.contains(j.getId()))
+                .toList();
+
+        if (jobs.isEmpty()) {
+            throw new ResourceNotFoundException("No jobs found");
+        }
+
+        switch (operation.toLowerCase()) {
+            case "pause" -> {
+                jobs.forEach(j -> j.setStatus(Status.PAUSED));
+                log.info("Paused {} jobs for user: {}", jobs.size(), user.getId());
+            }
+            case "resume" -> {
+                jobs.forEach(j -> {
+                    if (j.getStatus() != Status.FAILED) {
+                        j.setStatus(Status.PENDING);
+                    }
+                });
+                log.info("Resumed {} jobs for user: {}", jobs.size(), user.getId());
+            }
+            case "delete" -> {
+                jobs.forEach(j -> deleteJob(j.getId(), user));
+                log.info("Deleted {} jobs for user: {}", jobs.size(), user.getId());
+                return;
+            }
+            default -> throw new IllegalArgumentException("Invalid operation: " + operation);
+        }
+
+        jobRepository.saveAll(jobs);
+    }
+
+    public List<JobResponse> searchJobs(String query, User user) {
+        return jobRepository.searchByOwnerAndQuery(user, query).stream()
+                .filter(job -> job.getStatus() != Status.FAILED)
+                .map(JobService::mapToJobResponse)
+                .toList();
+    }
+
+    public List<JobResponse> filterByStatus(Status status, User user) {
+        return jobRepository.findByOwnerAndStatus(user, status).stream()
+                .map(JobService::mapToJobResponse)
+                .toList();
+    }
+
+    public List<JobResponse> filterByDateRange(LocalDateTime startDate, LocalDateTime endDate, User user) {
+        return jobRepository.findByOwnerAndDateRange(user, startDate, endDate).stream()
+                .filter(job -> job.getStatus() != Status.FAILED)
+                .map(JobService::mapToJobResponse)
+                .toList();
+    }
+
     public static JobResponse mapToJobResponse(Job job) {
         return JobResponse.builder()
                 .id(job.getId())
