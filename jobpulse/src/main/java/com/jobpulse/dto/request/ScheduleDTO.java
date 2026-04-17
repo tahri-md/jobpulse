@@ -2,6 +2,8 @@ package com.jobpulse.dto.request;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,7 +20,7 @@ public class ScheduleDTO {
     @NotNull(message = "Schedule type is required")
     private ScheduleType type;
 
-    // Only for ONE_TIME
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime runAt;
 
     // Only for RECURRING
