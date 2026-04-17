@@ -1,5 +1,6 @@
 package com.jobpulse.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import com.jobpulse.dto.request.BulkJobOperationDTO;
 import com.jobpulse.dto.request.JobRequestDTO;
 import com.jobpulse.dto.response.JobResponse;
+import com.jobpulse.model.Status;
 import com.jobpulse.model.User;
 import com.jobpulse.service.JobService;
 import com.jobpulse.service.JobService.DeadLetterJobResponse;
@@ -90,5 +93,42 @@ public class JobController {
     public ResponseEntity<JobResponse> resumeJob(@PathVariable long id, @AuthenticationPrincipal User user) {
         log.info("Resuming job with ID: {} for user: {}", id, user.getId());
         return ResponseEntity.ok(jobService.resumeJob(id, user));
+    }
+
+    // Bulk Operations
+    @PostMapping("/bulk")
+    public ResponseEntity<Void> bulkOperation(
+            @RequestBody BulkJobOperationDTO request,
+            @AuthenticationPrincipal User user) {
+        log.info("Performing bulk operation: {} on {} jobs for user: {}", 
+                 request.getOperation(), request.getJobIds().size(), user.getId());
+        jobService.bulkOperation(request.getJobIds(), request.getOperation(), user);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Search and Filtering
+    @GetMapping("/search")
+    public ResponseEntity<List<JobResponse>> searchJobs(
+            @RequestParam String query,
+            @AuthenticationPrincipal User user) {
+        log.debug("Searching jobs with query: {} for user: {}", query, user.getId());
+        return ResponseEntity.ok(jobService.searchJobs(query, user));
+    }
+
+    @GetMapping("/filter/status")
+    public ResponseEntity<List<JobResponse>> filterByStatus(
+            @RequestParam Status status,
+            @AuthenticationPrincipal User user) {
+        log.debug("Filtering jobs by status: {} for user: {}", status, user.getId());
+        return ResponseEntity.ok(jobService.filterByStatus(status, user));
+    }
+
+    @GetMapping("/filter/date-range")
+    public ResponseEntity<List<JobResponse>> filterByDateRange(
+            @RequestParam LocalDateTime startDate,
+            @RequestParam LocalDateTime endDate,
+            @AuthenticationPrincipal User user) {
+        log.debug("Filtering jobs by date range: {} to {} for user: {}", startDate, endDate, user.getId());
+        return ResponseEntity.ok(jobService.filterByDateRange(startDate, endDate, user));
     }
 }
