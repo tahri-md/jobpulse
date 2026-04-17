@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* ───────────── DARK THEME (default) ───────────── */
+/* ───────────── DARK THEME (Caramel Accents) ───────────── */
 :root,
 [data-theme="dark"] {
   --bg-root: #0e0e0e;
@@ -22,34 +22,34 @@
   --text-input: #d5d5d5;
   --text-placeholder: #4a4a4a;
 
-  --accent: #ecc94b;
-  --accent-hover: #f6e05e;
-  --accent-muted: rgba(236, 201, 75, 0.12);
+  --accent: #e8a03c;
+  --accent-hover: #f5b850;
+  --accent-muted: rgba(232, 160, 60, 0.15);
   --accent-text: #000;
 
-  --danger: #f56565;
-  --danger-muted: rgba(245, 101, 101, 0.12);
-  --danger-border: rgba(245, 101, 101, 0.25);
+  --danger: #d9671e;
+  --danger-muted: rgba(217, 103, 30, 0.12);
+  --danger-border: rgba(217, 103, 30, 0.25);
 
-  --success: #48bb78;
-  --success-muted: rgba(72, 187, 120, 0.12);
+  --success: #8b9d6b;
+  --success-muted: rgba(139, 157, 107, 0.12);
 
   --badge-type-bg: #252525;
-  --badge-type-text: #a0a0a0;
+  --badge-type-text: #b0a074;
   --badge-pending-bg: #252525;
   --badge-pending-text: #888;
-  --badge-running-bg: rgba(236, 201, 75, 0.15);
-  --badge-running-text: #ecc94b;
-  --badge-success-bg: rgba(72, 187, 120, 0.1);
-  --badge-success-text: #48bb78;
-  --badge-failed-bg: rgba(245, 101, 101, 0.1);
-  --badge-failed-text: #f56565;
-  --badge-retrying-bg: rgba(236, 201, 75, 0.1);
-  --badge-retrying-text: #ecc94b;
+  --badge-running-bg: rgba(232, 160, 60, 0.18);
+  --badge-running-text: #f5b850;
+  --badge-success-bg: rgba(139, 157, 107, 0.12);
+  --badge-success-text: #8b9d6b;
+  --badge-failed-bg: rgba(217, 103, 30, 0.12);
+  --badge-failed-text: #d9671e;
+  --badge-retrying-bg: rgba(232, 160, 60, 0.15);
+  --badge-retrying-text: #f5b850;
   --badge-paused-bg: #1e1e1e;
   --badge-paused-text: #888;
-  --badge-dead-bg: rgba(245, 101, 101, 0.1);
-  --badge-dead-text: #f56565;
+  --badge-dead-bg: rgba(217, 103, 30, 0.12);
+  --badge-dead-text: #d9671e;
 
   --code-bg: #0b0b0b;
   --code-border: #1a1a1a;
@@ -66,7 +66,7 @@
   color-scheme: dark;
 }
 
-/* ───────────── LIGHT THEME ───────────── */
+/* ───────────── LIGHT THEME (Caramel Accents) ───────────── */
 [data-theme="light"] {
   --bg-root: #f5f5f0;
   --bg-surface: #ffffff;
@@ -87,34 +87,34 @@
   --text-input: #1a1a1a;
   --text-placeholder: #aaa;
 
-  --accent: #c9a80e;
-  --accent-hover: #b8990a;
-  --accent-muted: rgba(201, 168, 14, 0.1);
+  --accent: #d4a574;
+  --accent-hover: #c99055;
+  --accent-muted: rgba(212, 165, 116, 0.12);
   --accent-text: #000;
 
-  --danger: #e53e3e;
-  --danger-muted: rgba(229, 62, 62, 0.08);
-  --danger-border: rgba(229, 62, 62, 0.25);
+  --danger: #c2540e;
+  --danger-muted: rgba(194, 84, 14, 0.08);
+  --danger-border: rgba(194, 84, 14, 0.25);
 
-  --success: #38a169;
-  --success-muted: rgba(56, 161, 105, 0.1);
+  --success: #6b8543;
+  --success-muted: rgba(107, 133, 67, 0.1);
 
   --badge-type-bg: #f0eeea;
-  --badge-type-text: #6a6a6a;
+  --badge-type-text: #8b7355;
   --badge-pending-bg: #f0eeea;
   --badge-pending-text: #888;
-  --badge-running-bg: rgba(201, 168, 14, 0.12);
-  --badge-running-text: #a88f0c;
-  --badge-success-bg: rgba(56, 161, 105, 0.1);
-  --badge-success-text: #38a169;
-  --badge-failed-bg: rgba(229, 62, 62, 0.08);
-  --badge-failed-text: #e53e3e;
-  --badge-retrying-bg: rgba(201, 168, 14, 0.1);
-  --badge-retrying-text: #a88f0c;
+  --badge-running-bg: rgba(232, 160, 60, 0.15);
+  --badge-running-text: #b8850e;
+  --badge-success-bg: rgba(107, 133, 67, 0.1);
+  --badge-success-text: #6b8543;
+  --badge-failed-bg: rgba(194, 84, 14, 0.1);
+  --badge-failed-text: #c2540e;
+  --badge-retrying-bg: rgba(232, 160, 60, 0.12);
+  --badge-retrying-text: #b8850e;
   --badge-paused-bg: #f0eeea;
   --badge-paused-text: #888;
-  --badge-dead-bg: rgba(229, 62, 62, 0.08);
-  --badge-dead-text: #e53e3e;
+  --badge-dead-bg: rgba(194, 84, 14, 0.1);
+  --badge-dead-text: #c2540e;
 
   --code-bg: #f8f8f5;
   --code-border: #e0ddd5;
