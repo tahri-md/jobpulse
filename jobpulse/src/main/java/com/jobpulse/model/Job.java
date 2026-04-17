@@ -19,6 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @NoArgsConstructor
@@ -46,5 +47,8 @@ public class Job {
     private String lastError;
     @OneToMany(mappedBy = "job")
     private List<DeadLetterJob> deadLetterJobs;
+    
+    @CreatedDate
+    private LocalDateTime createdAt;
 
 }
