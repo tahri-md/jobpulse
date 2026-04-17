@@ -134,6 +134,28 @@ jobpulse-project/
 - View execution history per job.
 - Dashboard with job statistics.
 
+### Job Templates
+
+- Save frequently-used job configurations as reusable templates.
+- Share templates publicly for other users to discover and use.
+- Create new jobs from templates with pre-filled configurations.
+- Edit and delete your own templates.
+- API endpoints for full CRUD operations on templates.
+
+### Bulk Operations
+
+- Select multiple jobs at once using checkboxes.
+- Perform batch operations: pause all, resume all, or delete all selected jobs.
+- Select all jobs at once with the header checkbox.
+- Real-time feedback on selected job count.
+
+### Search & Filtering
+
+- Search jobs by name using full-text search.
+- Filter jobs by status (SCHEDULED, RUNNING, PAUSED, COMPLETED, FAILED).
+- Filter jobs by date range (created between start and end dates).
+- Combine multiple filters for advanced job discovery.
+
 ### Distributed Execution
 
 - A scheduler runs every 60 seconds to pick up due jobs.
@@ -263,6 +285,21 @@ The following paths do not require authentication:
 | GET    | `/api/v1/jobs/{id}/history`           | Get job execution history   |
 | GET    | `/api/v1/jobs/dead-letter`            | List dead letter jobs       |
 | POST   | `/api/v1/jobs/dead-letter/{id}/replay`| Replay a dead letter job    |
+| POST   | `/api/v1/jobs/bulk`                   | Bulk operations on jobs     |
+| GET    | `/api/v1/jobs/search`                 | Search jobs by name/query   |
+| GET    | `/api/v1/jobs/filter/status`          | Filter jobs by status       |
+| GET    | `/api/v1/jobs/filter/date-range`      | Filter jobs by date range   |
+
+### Job Templates
+
+| Method | Path                          | Description                 |
+|--------|-------------------------------|-----------------------------|
+| POST   | `/api/v1/templates`           | Create a new template       |
+| GET    | `/api/v1/templates`           | List available templates    |
+| GET    | `/api/v1/templates/own`       | List user's own templates   |
+| GET    | `/api/v1/templates/{id}`      | Get template details        |
+| PUT    | `/api/v1/templates/{id}`      | Update a template           |
+| DELETE | `/api/v1/templates/{id}`      | Delete a template           |
 
 ### Gmail
 
@@ -317,6 +354,38 @@ docker-compose up --build -d
 | Frontend  | http://localhost:4200      |
 | Backend   | http://localhost:8080      |
 | API docs  | http://localhost:8080/actuator/health |
+
+### Key Features to Try
+
+**Job Templates:**
+1. Navigate to `/templates`
+2. Create a new template with your job configuration
+3. Toggle the "Public" switch to share with other users
+4. Create a job from the template - the form will be pre-filled
+
+**Bulk Operations:**
+1. Go to the Jobs page (`/jobs`)
+2. Select multiple jobs using the checkboxes
+3. Use the bulk toolbar to pause, resume, or delete all selected jobs at once
+
+**Search & Filter:**
+1. Use the search input to find jobs by name
+2. Filter by status or date range using the filter options
+3. Combine filters for more precise results
+
+---
+
+## UI/UX
+
+### Theme
+
+JobPulse features a beautiful **caramel-themed dark interface** with warm accent colors:
+- **Primary Accent**: Caramel orange (#e8a03c) for buttons and highlights
+- **Backgrounds**: Pure black for optimal readability
+- **Danger States**: Burnt orange (#d9671e) for errors and destructive actions
+- **Success States**: Earthy sage green (#8b9d6b) for confirmations
+
+The theme is automatically applied across all pages and components for a cohesive user experience.
 
 ---
 
