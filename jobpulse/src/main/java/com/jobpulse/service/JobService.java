@@ -1,6 +1,8 @@
 package com.jobpulse.service;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -112,13 +114,14 @@ public class JobService {
         log.info("Job created successfully with ID: {}", job.getId());
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 10000)
     public void runDueJobs() throws Exception {
         log.debug("Checking for due jobs...");
+        LocalDateTime now = LocalDateTime.now();
         List<Job> dueJobs = jobRepository.findAll()
                 .stream()
                 .filter(job -> job.getNextRunTime() != null &&
-                        !job.getNextRunTime().isAfter(LocalDateTime.now()))
+                        !job.getNextRunTime().isAfter(now))
                 .filter(job -> job.getStatus().equals(Status.PENDING) || job.getStatus().equals(Status.RETRYING))
                 .toList();
 
