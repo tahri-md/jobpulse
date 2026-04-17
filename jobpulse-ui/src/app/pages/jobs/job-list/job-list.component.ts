@@ -60,10 +60,27 @@ import { JobResponse, Status } from '../../../models';
           }
         </div>
       } @else {
+        @if (selectedJobs.size > 0) {
+          <div class="bulk-toolbar">
+            <div class="bulk-info">
+              <span class="selected-count">{{ selectedJobs.size }} selected</span>
+            </div>
+            <div class="bulk-actions">
+              <button class="action-btn" (click)="bulkPause()" title="Pause selected">Pause All</button>
+              <button class="action-btn accent" (click)="bulkResume()" title="Resume selected">Resume All</button>
+              <button class="action-btn danger" (click)="bulkDelete()" title="Delete selected">Delete All</button>
+              <button class="action-btn" (click)="clearSelection()" title="Clear selection">Clear</button>
+            </div>
+          </div>
+        }
         <div class="table-container">
           <table class="table">
             <thead>
               <tr>
+                <th class="checkbox-cell">
+                  <input type="checkbox" [checked]="selectedJobs.size === filteredJobs.length && filteredJobs.length > 0" 
+                    (change)="toggleSelectAll($event)" class="select-checkbox">
+                </th>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Type</th>
@@ -76,7 +93,11 @@ import { JobResponse, Status } from '../../../models';
             </thead>
             <tbody>
               @for (job of filteredJobs; track job.id) {
-                <tr>
+                <tr [class.selected-row]="selectedJobs.has(job.id)">
+                  <td class="checkbox-cell">
+                    <input type="checkbox" [checked]="selectedJobs.has(job.id)" 
+                      (change)="toggleJobSelection(job.id)" class="select-checkbox">
+                  </td>
                   <td class="id-cell">#{{ job.id }}</td>
                   <td class="job-name">{{ job.name }}</td>
                   <td><span class="badge badge-type">{{ job.jobType }}</span></td>
@@ -160,6 +181,17 @@ import { JobResponse, Status } from '../../../models';
     .action-btn.accent:hover { background: var(--accent-muted); border-color: var(--accent); }
     .action-btn.danger { color: var(--danger); border-color: var(--danger-muted); }
     .action-btn.danger:hover { background: var(--danger-muted); border-color: var(--danger); }
+    .checkbox-cell { width: 40px; text-align: center; }
+    .select-checkbox { cursor: pointer; width: 16px; height: 16px; }
+    .selected-row { background: var(--accent-muted) !important; }
+    .bulk-toolbar {
+      display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;
+      background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border);
+      margin-bottom: 12px; border-bottom: 2px solid var(--accent);
+    }
+    .bulk-info { display: flex; align-items: center; gap: 12px; }
+    .selected-count { font-weight: 600; color: var(--accent); font-size: 14px; }
+    .bulk-actions { display: flex; gap: 8px; }
     .loading-state, .empty-state {
       text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--bg-surface);
       border-radius: 8px; border: 1px solid var(--border);
@@ -178,6 +210,7 @@ export class JobListComponent implements OnInit {
   searchTerm = '';
   statusFilter = '';
   typeFilter = '';
+  selectedJobs = new Set<number>();
 
   constructor(
     private jobService: JobService,
@@ -246,6 +279,76 @@ export class JobListComponent implements OnInit {
         this.loadJobs();
       },
       error: () => this.toast.error('Failed to delete job.')
+    });
+  }
+
+  toggleJobSelection(jobId: number): void {
+    if (this.selectedJobs.has(jobId)) {
+      this.selectedJobs.delete(jobId);
+    } else {
+      this.selectedJobs.add(jobId);
+    }
+  }
+
+  toggleSelectAll(event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    if (isChecked) {
+      this.filteredJobs.forEach(job => this.selectedJobs.add(job.id));
+    } else {
+      this.clearSelection();
+    }
+  }
+
+  clearSelection(): void {
+    this.selectedJobs.clear();
+  }
+
+  bulkPause(): void {
+    if (this.selectedJobs.size === 0) {
+      this.toast.warning('No jobs selected.');
+      return;
+    }
+    const jobIds = Array.from(this.selectedJobs);
+    this.jobService.bulkOperation(jobIds, 'pause').subscribe({
+      next: () => {
+        this.toast.success(`${jobIds.length} job(s) paused.`);
+        this.clearSelection();
+        this.loadJobs();
+      },
+      error: () => this.toast.error('Failed to pause jobs.')
+    });
+  }
+
+  bulkResume(): void {
+    if (this.selectedJobs.size === 0) {
+      this.toast.warning('No jobs selected.');
+      return;
+    }
+    const jobIds = Array.from(this.selectedJobs);
+    this.jobService.bulkOperation(jobIds, 'resume').subscribe({
+      next: () => {
+        this.toast.success(`${jobIds.length} job(s) resumed.`);
+        this.clearSelection();
+        this.loadJobs();
+      },
+      error: () => this.toast.error('Failed to resume jobs.')
+    });
+  }
+
+  bulkDelete(): void {
+    if (this.selectedJobs.size === 0) {
+      this.toast.warning('No jobs selected.');
+      return;
+    }
+    if (!confirm(`Are you sure you want to delete ${this.selectedJobs.size} job(s)?`)) return;
+    const jobIds = Array.from(this.selectedJobs);
+    this.jobService.bulkOperation(jobIds, 'delete').subscribe({
+      next: () => {
+        this.toast.success(`${jobIds.length} job(s) deleted.`);
+        this.clearSelection();
+        this.loadJobs();
+      },
+      error: () => this.toast.error('Failed to delete jobs.')
     });
   }
 }
