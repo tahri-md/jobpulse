@@ -55,4 +55,31 @@ export class JobService {
   getStats(): Observable<JobStatsResponse> {
     return this.http.get<JobStatsResponse>(`${this.apiUrl}/stats`);
   }
+
+  // Bulk Operations
+  bulkOperation(jobIds: number[], operation: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/bulk`, {
+      jobIds,
+      operation
+    });
+  }
+
+  // Search and Filtering
+  search(query: string): Observable<JobResponse[]> {
+    return this.http.get<JobResponse[]>(`${this.apiUrl}/search`, {
+      params: { query }
+    });
+  }
+
+  filterByStatus(status: string): Observable<JobResponse[]> {
+    return this.http.get<JobResponse[]>(`${this.apiUrl}/filter/status`, {
+      params: { status }
+    });
+  }
+
+  filterByDateRange(startDate: string, endDate: string): Observable<JobResponse[]> {
+    return this.http.get<JobResponse[]>(`${this.apiUrl}/filter/date-range`, {
+      params: { startDate, endDate }
+    });
+  }
 }

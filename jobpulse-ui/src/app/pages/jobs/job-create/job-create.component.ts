@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { JobService } from '../../../services/job.service';
+import { JobTemplateService } from '../../../services/job-template.service';
 import { ToastService } from '../../../services/toast.service';
 import { FullJobRequest, JobType, ScheduleType, TimeUnit } from '../../../models';
 
@@ -161,7 +162,7 @@ import { FullJobRequest, JobType, ScheduleType, TimeUnit } from '../../../models
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   `]
 })
-export class JobCreateComponent {
+export class JobCreateComponent implements OnInit {
   jobTypes = Object.values(JobType);
   scheduleTypes = Object.values(ScheduleType);
   timeUnits = Object.values(TimeUnit);
@@ -237,8 +238,42 @@ export class JobCreateComponent {
   constructor(
     private jobService: JobService,
     private router: Router,
-    private toast: ToastService
+    private toast: ToastService,
+    private templateService: JobTemplateService,
+    private route: ActivatedRoute
   ) {}
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['template']) {
+        const templateId = parseInt(params['template']);
+        this.loadTemplateAndPrefill(templateId);
+      }
+    });
+  }
+
+  private loadTemplateAndPrefill(templateId: number): void {
+    this.templateService.getById(templateId).subscribe({
+      next: (template) => {
+        this.job.name = `${template.name} (from template)`;
+        this.job.jobType = template.jobType as JobType;
+        this.job.payload = template.payload || '{}';
+        this.job.maxRetries = template.maxRetries;
+        
+        if (template.cronExpression) {
+          this.job.schedule.type = ScheduleType.CRON;
+          this.job.schedule.cronExpression = template.cronExpression;
+        }
+
+        this.payloadRows = this.job.payload.split('\n').length + 1;
+        this.toast.success('Template loaded successfully!');
+      },
+      error: (err) => {
+        console.error('Failed to load template:', err);
+        this.toast.error('Failed to load template.');
+      }
+    });
+  }
 
   onSubmit(): void {
     if (!this.job.name) {
