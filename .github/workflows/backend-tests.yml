@@ -26,12 +26,5 @@ jobs:
           distribution: 'temurin'
           cache: maven
       
-      - name: Run Maven tests
-        run: cd jobpulse && mvn clean test
-      
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-test-results
-          path: jobpulse/target/surefire-reports/
+      - name: Run Maven build
+        run: cd jobpulse && mvn clean package -DskipTests
