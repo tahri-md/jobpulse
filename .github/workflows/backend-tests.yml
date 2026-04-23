@@ -28,3 +28,6 @@ jobs:
       
       - name: Run Maven build
         run: cd jobpulse && mvn clean package -DskipTests
+      
+      - name: Build Docker image
+        run: cd jobpulse && docker build -t jobpulse:latest .
