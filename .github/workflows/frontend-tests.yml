@@ -34,3 +34,6 @@ jobs:
       
       - name: Build Angular app
         run: cd jobpulse-ui && npm run build
+      
+      - name: Build Docker image
+        run: cd jobpulse-ui && docker build -t jobpulse-ui:latest .
