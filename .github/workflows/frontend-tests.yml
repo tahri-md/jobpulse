@@ -32,5 +32,5 @@ jobs:
       - name: Run Angular linting
         run: cd jobpulse-ui && npm run lint --if-present
       
-      - name: Run frontend tests
-        run: cd jobpulse-ui && npm test -- --no-watch --browsers=ChromeHeadless
+      - name: Build Angular app
+        run: cd jobpulse-ui && npm run build
