@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { GmailService, GmailStatus } from '../../services/gmail.service';
 import { ToastService } from '../../services/toast.service';
-import { UserResponse } from '../../models';
+import { UserDto } from '../../models';
 
 @Component({
   selector: 'app-profile',
@@ -37,10 +37,7 @@ import { UserResponse } from '../../models';
               <span class="info-label">Role</span>
               <span class="info-value">{{ user.role }}</span>
             </div>
-            <div class="info-row">
-              <span class="info-label">User ID</span>
-              <span class="info-value">#{{ user.id }}</span>
-            </div>
+          
           </div>
         </div>
 
@@ -151,7 +148,7 @@ import { UserResponse } from '../../models';
   `]
 })
 export class ProfileComponent implements OnInit {
-  user: UserResponse | null = null;
+  user: UserDto | null = null;
   gmailStatus: GmailStatus | null = null;
   gmailLoading = true;
   gmailActing = false;
