@@ -1,6 +1,7 @@
 package com.jobpulse.dto.request;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -23,7 +24,7 @@ public class JobRequestDTO {
     private String name;
 
     @NotNull(message = "Owner ID is required")
-    private Long ownerId;
+    private UUID ownerId;
 
     @NotNull(message = "Job type is required")
     private JobType jobType;
