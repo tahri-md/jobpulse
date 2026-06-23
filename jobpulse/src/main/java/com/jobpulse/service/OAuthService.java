@@ -2,7 +2,6 @@ package com.jobpulse.service;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -10,7 +9,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobpulse.dto.response.OAuthUserInfo;
@@ -18,22 +16,19 @@ import com.jobpulse.exception.BadRequestException;
 import com.jobpulse.model.AuthProvider;
 import com.jobpulse.model.Role;
 import com.jobpulse.model.User;
+import com.jobpulse.model.UserIdentity;
 import com.jobpulse.repository.UserRepository;
-
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class OAuthService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private WebClient webClient;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final UserRepository userRepository;
+    private final WebClient webClient;
+    private final ObjectMapper objectMapper;
 
     @Value("${oauth.google.client-id}")
     private String googleClientId;
@@ -53,16 +48,8 @@ public class OAuthService {
     @Value("${oauth.github.client-secret}")
     private String githubClientSecret;
 
-    /**
-     * Result of a Google OAuth login: the authenticated user + raw token response
-     * so that Gmail tokens can be stored without re-exchanging the code.
-     */
     public record GoogleOAuthResult(User user, JsonNode tokenResponse) {}
 
-    /**
-     * Process Google OAuth authorization code – exchange for tokens, extract user info.
-     * Returns both the user and the full token response (access_token, refresh_token, expires_in).
-     */
     public GoogleOAuthResult processGoogleOAuth(String code) {
         log.info("Processing Google OAuth with authorization code");
         JsonNode tokenResponse = exchangeGoogleCodeForTokens(code);
@@ -72,20 +59,13 @@ public class OAuthService {
         return new GoogleOAuthResult(user, tokenResponse);
     }
 
-    /**
-     * Process GitHub OAuth code and get or create user
-     */
     public User processGitHubOAuth(String code) {
-        log.info("Processing GitHub OAuth with code: {}", code.substring(0, Math.min(10, code.length())) + "...");
+        log.info("Processing GitHub OAuth with code: {}...", code.substring(0, Math.min(10, code.length())));
         String accessToken = exchangeGitHubCodeForToken(code);
         OAuthUserInfo userInfo = getGitHubUserInfo(accessToken);
         return getOrCreateUser(userInfo, AuthProvider.GITHUB);
     }
 
-   
-    /**
-     * Exchanges Google authorization code for the full token response (JSON).
-     */
     private JsonNode exchangeGoogleCodeForTokens(String code) {
         try {
             MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -104,11 +84,9 @@ public class OAuthService {
                     .block();
 
             JsonNode json = objectMapper.readTree(response);
-
             if (json.has("error")) {
                 throw new BadRequestException("Google token exchange failed: " + json.get("error").asText());
             }
-
             return json;
 
         } catch (BadRequestException e) {
@@ -119,9 +97,6 @@ public class OAuthService {
         }
     }
 
-    /**
-     * Fetches user profile info from Google using an access token.
-     */
     private OAuthUserInfo getGoogleUserInfo(String accessToken) {
         try {
             String response = webClient.get()
@@ -132,20 +107,15 @@ public class OAuthService {
                     .block();
 
             JsonNode userNode = objectMapper.readTree(response);
-
             String email = userNode.get("email").asText();
             String name = userNode.has("name") ? userNode.get("name").asText() : email.split("@")[0];
             String picture = userNode.has("picture") ? userNode.get("picture").asText() : null;
             String id = userNode.get("id").asText();
 
             log.debug("Extracted Google user: {} ({})", email, id);
-
             return OAuthUserInfo.builder()
-                    .email(email)
-                    .name(name)
-                    .avatar(picture)
-                    .provider("GOOGLE")
-                    .providerId(id)
+                    .email(email).name(name).avatar(picture)
+                    .provider("GOOGLE").providerId(id)
                     .build();
 
         } catch (Exception e) {
@@ -153,7 +123,6 @@ public class OAuthService {
             throw new BadRequestException("Failed to retrieve Google user info: " + e.getMessage());
         }
     }
-
 
     private String exchangeGitHubCodeForToken(String code) {
         try {
@@ -172,7 +141,6 @@ public class OAuthService {
                     .block();
 
             JsonNode jsonResponse = objectMapper.readTree(response);
-
             if (jsonResponse.has("error")) {
                 String error = jsonResponse.get("error").asText();
                 log.error("GitHub OAuth error: {}", error);
@@ -200,29 +168,22 @@ public class OAuthService {
                     .block();
 
             JsonNode userNode = objectMapper.readTree(response);
-
             if (!userNode.has("id")) {
                 throw new BadRequestException("Invalid GitHub response: missing id");
             }
 
             String login = userNode.get("login").asText();
             String name = userNode.has("name") && !userNode.get("name").isNull()
-                    ? userNode.get("name").asText()
-                    : login;
+                    ? userNode.get("name").asText() : login;
             String email = userNode.has("email") && !userNode.get("email").isNull()
-                    ? userNode.get("email").asText()
-                    : login + "@github.com";
+                    ? userNode.get("email").asText() : login + "@github.com";
             String avatar = userNode.has("avatar_url") ? userNode.get("avatar_url").asText() : null;
             String id = userNode.get("id").asText();
 
             log.debug("Extracted GitHub user: {} ({})", email, id);
-
             return OAuthUserInfo.builder()
-                    .email(email)
-                    .name(name)
-                    .avatar(avatar)
-                    .provider("GITHUB")
-                    .providerId(id)
+                    .email(email).name(name).avatar(avatar)
+                    .provider("GITHUB").providerId(id)
                     .build();
 
         } catch (Exception e) {
@@ -231,13 +192,10 @@ public class OAuthService {
         }
     }
 
-   
     private User getOrCreateUser(OAuthUserInfo userInfo, AuthProvider provider) {
-        User user = userRepository.findAll().stream()
-                .filter(u -> userInfo.getProviderId().equals(u.getProviderId()) &&
-                        u.getProvider() == provider)
-                .findFirst()
-                .orElse(null);
+        // 1. Look up by providerId + provider across all identities
+        User user = userRepository.findByIdentities_ProviderAndIdentities_ProviderId(
+                provider, userInfo.getProviderId()).orElse(null);
 
         if (user != null) {
             log.info("Found existing user: {} from provider: {}", user.getEmail(), provider);
@@ -248,43 +206,48 @@ public class OAuthService {
             return user;
         }
 
+        // 2. Email match → link new identity to existing account
         user = userRepository.findByEmail(userInfo.getEmail()).orElse(null);
 
         if (user != null) {
             log.info("Linking OAuth provider {} to existing user: {}", provider, user.getEmail());
-            user.setProvider(provider);
-            user.setProviderId(userInfo.getProviderId());
+            UserIdentity newIdentity = UserIdentity.builder()
+                    .provider(provider)
+                    .providerId(userInfo.getProviderId())
+                    .build();
+            user.getIdentities().add(newIdentity);
             if (userInfo.getAvatar() != null) {
                 user.setAvatar(userInfo.getAvatar());
             }
             return userRepository.save(user);
         }
 
+        // 3. Brand new user
         log.info("Creating new user from {} OAuth: {}", provider, userInfo.getEmail());
+        UserIdentity identity = UserIdentity.builder()
+                .provider(provider)
+                .providerId(userInfo.getProviderId())
+                .build();
+
         user = User.builder()
                 .email(userInfo.getEmail())
                 .username(generateUsername(userInfo.getEmail()))
-                .password("") 
+                .passwordHash("")
                 .avatar(userInfo.getAvatar())
                 .role(Role.USER)
-                .provider(provider)
-                .providerId(userInfo.getProviderId())
+                .identities(new java.util.ArrayList<>(java.util.List.of(identity)))
                 .build();
 
         return userRepository.save(user);
     }
 
-   
     private String generateUsername(String email) {
         String baseUsername = email.split("@")[0];
         String username = baseUsername;
         int counter = 1;
-
         while (userRepository.findByUsername(username).isPresent()) {
-            username = baseUsername + counter;
-            counter++;
+            username = baseUsername + counter++;
         }
-
         return username;
     }
 }
