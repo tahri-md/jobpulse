@@ -1,4 +1,4 @@
-import { Role, AuthProvider } from './enums';
+import { AuthProvider, Role } from "./enums";
 
 export interface User {
   id: number;
@@ -8,6 +8,12 @@ export interface User {
   lastName: string;
   role: Role;
   authProvider: AuthProvider;
+}
+export interface ApiResponse<T> {
+  message:string;
+  data:T;
+  success:boolean;
+  timestamp:number;
 }
 
 export interface LoginRequest {
@@ -19,6 +25,7 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
+  passwordConfirmation: string; 
 }
 
 export interface AuthResponse {
@@ -26,12 +33,14 @@ export interface AuthResponse {
   refreshToken: string;
   tokenType: string;
   expiresIn: number;
-  user: UserResponse;
+  user: UserDto; 
 }
 
-export interface UserResponse {
-  id: number;
-  username: string;
+export interface UserDto { 
   email: string;
+  username: string;
+  avatar: string;      
+  authProviders: string[]; 
+  lastLoginAt: string;  
   role: string;
 }
