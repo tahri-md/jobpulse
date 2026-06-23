@@ -13,6 +13,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/register/register.component').then(m => m.RegisterComponent)
   },
   {
+    path: 'verify-email',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./pages/verify-email/verify-email.component').then(m => m.VerifyEmailComponent)
+  },
+  {
     path: 'google/callback',
     loadComponent: () => import('./pages/google-callback/google-callback.component').then(m => m.GoogleCallbackComponent)
   },
