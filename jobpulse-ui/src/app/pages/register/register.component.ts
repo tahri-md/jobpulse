@@ -168,11 +168,12 @@ export class RegisterComponent {
     this.authService.register({
       username: this.username,
       email: this.email,
-      password: this.password
+      password: this.password,
+      passwordConfirmation: this.confirmPassword
     }).subscribe({
       next: () => {
         this.toast.success('Account created successfully!');
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         this.loading = false;
