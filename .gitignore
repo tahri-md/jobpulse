@@ -9,3 +9,5 @@ jobpulse/*.iml
 jobpulse-ui/node_modules/
 jobpulse-ui/dist/
 jobpulse-ui/.angular/
+jobpulse/src/main/resources/application.properties
+docker-compose.yml
