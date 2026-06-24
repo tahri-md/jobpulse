@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GoogleOAuthRequest {
-    
-    @NotBlank(message = "Google authorization code is required")
-    private String code;
+
+  @NotBlank(message = "Google authorization code is required")
+  private String code;
 }

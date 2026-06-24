@@ -4,18 +4,18 @@ export enum Status {
   SUCCESS = 'SUCCESS',
   FAILED = 'FAILED',
   RETRYING = 'RETRYING',
-  PAUSED = 'PAUSED'
+  PAUSED = 'PAUSED',
 }
 
 export enum Role {
   USER = 'USER',
-  ADMIN = 'ADMIN'
+  ADMIN = 'ADMIN',
 }
 
 export enum AuthProvider {
   LOCAL = 'LOCAL',
   GOOGLE = 'GOOGLE',
-  GITHUB = 'GITHUB'
+  GITHUB = 'GITHUB',
 }
 
 export enum JobType {
@@ -24,19 +24,19 @@ export enum JobType {
   DATA_CLEANUP = 'DATA_CLEANUP',
   REPORT_GENERATION = 'REPORT_GENERATION',
   SCRIPT = 'SCRIPT',
-  LOG = 'LOG'
+  LOG = 'LOG',
 }
 
 export enum ScheduleType {
   ONE_TIME = 'ONE_TIME',
   RECURRING = 'RECURRING',
-  CRON = 'CRON'
+  CRON = 'CRON',
 }
 
 export enum TimeUnit {
   MINUTES = 'MINUTES',
   HOURS = 'HOURS',
-  DAYS = 'DAYS'
+  DAYS = 'DAYS',
 }
 
 export enum JobFailureReason {
@@ -47,7 +47,7 @@ export enum JobFailureReason {
   RATE_LIMITED = 'RATE_LIMITED',
   SERVER_ERROR = 'SERVER_ERROR',
   SCRIPT_ERROR = 'SCRIPT_ERROR',
-  UNKNOWN = 'UNKNOWN'
+  UNKNOWN = 'UNKNOWN',
 }
 
 export enum NotificationType {
@@ -55,10 +55,10 @@ export enum NotificationType {
   JOB_FAILED = 'JOB_FAILED',
   JOB_PAUSED = 'JOB_PAUSED',
   JOB_RESUMED = 'JOB_RESUMED',
-  DEAD_LETTER_QUEUE = 'DEAD_LETTER_QUEUE'
+  DEAD_LETTER_QUEUE = 'DEAD_LETTER_QUEUE',
 }
 
 export enum NotificationChannel {
   EMAIL = 'EMAIL',
-  IN_APP = 'IN_APP'
+  IN_APP = 'IN_APP',
 }

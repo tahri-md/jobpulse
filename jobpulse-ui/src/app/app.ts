@@ -9,6 +9,12 @@ import { ToastComponent } from './components/toast/toast.component';
     <app-toast />
     <router-outlet />
   `,
-  styles: [`:host { display: block; }`]
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+    `,
+  ],
 })
 export class App {}

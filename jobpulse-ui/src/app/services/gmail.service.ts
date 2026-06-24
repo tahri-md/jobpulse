@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -12,7 +12,7 @@ export interface GmailStatus {
 export class GmailService {
   private readonly apiUrl = `${environment.apiUrl}/gmail`;
 
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
   getAuthUrl(): Observable<{ url: string }> {
     return this.http.get<{ url: string }>(`${this.apiUrl}/auth-url`);

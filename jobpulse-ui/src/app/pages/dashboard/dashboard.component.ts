@@ -330,9 +330,9 @@ export class DashboardComponent implements OnInit {
   recentJobs: JobResponse[] = [];
   loading = true;
 
-  private jobService = inject(JobService);
-  private auth = inject(AuthService);
-  private cdr = inject(ChangeDetectorRef);
+  protected readonly jobService = inject(JobService);
+  protected readonly auth = inject(AuthService);
+  protected readonly cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.loadData();

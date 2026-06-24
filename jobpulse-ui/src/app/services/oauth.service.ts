@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
@@ -10,11 +10,9 @@ import { AuthService } from './auth.service';
 export class OAuthService {
   private readonly apiUrl = `${environment.apiUrl}/auth/oauth`;
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    private authService: AuthService
-  ) {}
+  private http = inject(HttpClient);
+  private router = inject(Router);
+  private authService = inject(AuthService);
 
   /**
    * Initiates Google OAuth by redirecting to Google's consent page.
@@ -29,8 +27,7 @@ export class OAuthService {
 
     sessionStorage.setItem('google_oauth_state', state);
 
-    window.location.href =
-      `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent&state=${state}`;
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent&state=${state}`;
   }
 
   /**
@@ -38,8 +35,8 @@ export class OAuthService {
    */
   loginWithGoogle(code: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/google`, { code }).pipe(
-      tap(res => this.authService.setAuthResponse(res)),
-      catchError(err => throwError(() => err))
+      tap((res) => this.authService.setAuthResponse(res)),
+      catchError((err) => throwError(() => err)),
     );
   }
 
@@ -55,8 +52,7 @@ export class OAuthService {
     // Store state to verify later
     sessionStorage.setItem('github_oauth_state', state);
 
-    window.location.href =
-      `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&state=${state}`;
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&state=${state}`;
   }
 
   /**
@@ -64,8 +60,8 @@ export class OAuthService {
    */
   loginWithGitHub(code: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/github`, { code }).pipe(
-      tap(res => this.authService.setAuthResponse(res)),
-      catchError(err => throwError(() => err))
+      tap((res) => this.authService.setAuthResponse(res)),
+      catchError((err) => throwError(() => err)),
     );
   }
 
@@ -90,6 +86,6 @@ export class OAuthService {
   private generateState(): string {
     const array = new Uint8Array(16);
     crypto.getRandomValues(array);
-    return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+    return Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('');
   }
 }

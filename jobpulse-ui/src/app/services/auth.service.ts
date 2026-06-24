@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { inject, Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, map } from 'rxjs';
@@ -6,65 +6,78 @@ import { environment } from '../../environments/environment';
 import {
   ApiResponse,
   AuthResponse,
+  ChangePasswordRequest,
+  ForgotPasswordRequest,
   LoginRequest,
   RegisterRequest,
-  UserDto
+  ResetPasswordRequest,
+  UserDto,
 } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly apiUrl = `${environment.apiUrl}/auth`;
+  private readonly authUrl = `${environment.apiUrl}/auth`;
+  private readonly passwordUrl = `${environment.apiUrl}/password`;
+
   private readonly tokenKey = 'jobpulse_token';
   private readonly userKey = 'jobpulse_user';
 
   private _currentUser = signal<UserDto | null>(this.loadUser());
-  private _isAuthenticated = computed(
-    () => !!this._currentUser() && !!this.getToken()
-  );
+  private _isAuthenticated = computed(() => !!this._currentUser() && !!this.getToken());
 
   readonly currentUser = this._currentUser.asReadonly();
   readonly isAuthenticated = this._isAuthenticated;
 
-  constructor(
-    private http: HttpClient,
-    private router: Router
-  ) { }
+  private http = inject(HttpClient);
+  private router = inject(Router);
 
   login(request: LoginRequest): Observable<AuthResponse> {
-    return this.http
-      .post<ApiResponse<AuthResponse>>(`${this.apiUrl}/login`, request)
-      .pipe(
-        map(response => response.data),
-        tap(auth => this.handleAuth(auth))
-      );
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.authUrl}/login`, request).pipe(
+      map((response) => response.data),
+      tap((auth) => this.handleAuth(auth)),
+    );
   }
 
   register(request: RegisterRequest): Observable<UserDto> {
     return this.http
-      .post<ApiResponse<UserDto>>(`${this.apiUrl}/register`, request)
-      .pipe(
-        map(response => response.data),
-      );
-  }
-  verifyEmail(token: string): Observable<any> {
-    return this.http.post<ApiResponse<any>>(
-      `${this.apiUrl}/verify-email`,
-      { token }
-    );
+      .post<ApiResponse<UserDto>>(`${this.authUrl}/register`, request)
+      .pipe(map((response) => response.data));
   }
 
   getMe(): Observable<UserDto> {
-    return this.http
-      .get<ApiResponse<UserDto>>(`${this.apiUrl}/me`)
-      .pipe(
-        map(response => response.data),
-        tap(user => {
-          this._currentUser.set(user);
-          localStorage.setItem(this.userKey, JSON.stringify(user));
-        })
-      );
+    return this.http.get<ApiResponse<UserDto>>(`${this.authUrl}/me`).pipe(
+      map((response) => response.data),
+      tap((user) => {
+        this._currentUser.set(user);
+        localStorage.setItem(this.userKey, JSON.stringify(user));
+      }),
+    );
   }
 
+  verifyEmail(token: string): Observable<ApiResponse<UserDto>> {
+    return this.http.post<ApiResponse<UserDto>>(`${this.authUrl}/verify-email`, { token });
+  }
+
+  forgotPassword(request: ForgotPasswordRequest): Observable<object> {
+    return this.http.post<ApiResponse<object>>(`${this.passwordUrl}/forgot-password`, request).pipe(
+      map((response) => response.data),
+      tap(() => console.log('Forgot password email sent')),
+    );
+  }
+
+  resetPassword(request: ResetPasswordRequest): Observable<object> {
+    return this.http.post<ApiResponse<object>>(`${this.passwordUrl}/reset-password`, request).pipe(
+      map((response) => response.data),
+      tap(() => console.log('Password reset successfully')),
+    );
+  }
+
+  changePassword(request: ChangePasswordRequest): Observable<object> {
+    return this.http.post<ApiResponse<object>>(`${this.passwordUrl}/change-password`, request).pipe(
+      map((response) => response.data),
+      tap(() => console.log('Password changed successfully')),
+    );
+  }
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
@@ -89,7 +102,7 @@ export class AuthService {
       role: res.user.role,
       avatar: res.user.avatar,
       authProviders: res.user.authProviders,
-      lastLoginAt: res.user.lastLoginAt
+      lastLoginAt: res.user.lastLoginAt,
     };
 
     localStorage.setItem(this.userKey, JSON.stringify(user));

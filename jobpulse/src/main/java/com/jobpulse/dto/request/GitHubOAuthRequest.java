@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GitHubOAuthRequest {
-    
-    @NotBlank(message = "GitHub authorization code is required")
-    private String code;
+
+  @NotBlank(message = "GitHub authorization code is required")
+  private String code;
 }

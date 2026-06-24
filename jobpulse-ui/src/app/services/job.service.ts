@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -7,14 +7,14 @@ import {
   FullJobRequest,
   JobHistoryResponse,
   DeadLetterJobResponse,
-  JobStatsResponse
+  JobStatsResponse,
 } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class JobService {
   private readonly apiUrl = `${environment.apiUrl}/jobs`;
 
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
   getAll(): Observable<JobResponse[]> {
     return this.http.get<JobResponse[]>(this.apiUrl);
@@ -24,8 +24,8 @@ export class JobService {
     return this.http.get<JobResponse>(`${this.apiUrl}/${id}`);
   }
 
-  createFull(job: FullJobRequest): Observable<any> {
-    return this.http.post(`${this.apiUrl}/full`, job);
+  createFull(job: FullJobRequest): Observable<JobResponse> {
+    return this.http.post<JobResponse>(`${this.apiUrl}/full`, job);
   }
 
   delete(id: number): Observable<void> {
@@ -60,26 +60,26 @@ export class JobService {
   bulkOperation(jobIds: number[], operation: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/bulk`, {
       jobIds,
-      operation
+      operation,
     });
   }
 
   // Search and Filtering
   search(query: string): Observable<JobResponse[]> {
     return this.http.get<JobResponse[]>(`${this.apiUrl}/search`, {
-      params: { query }
+      params: { query },
     });
   }
 
   filterByStatus(status: string): Observable<JobResponse[]> {
     return this.http.get<JobResponse[]>(`${this.apiUrl}/filter/status`, {
-      params: { status }
+      params: { status },
     });
   }
 
   filterByDateRange(startDate: string, endDate: string): Observable<JobResponse[]> {
     return this.http.get<JobResponse[]>(`${this.apiUrl}/filter/date-range`, {
-      params: { startDate, endDate }
+      params: { startDate, endDate },
     });
   }
 }

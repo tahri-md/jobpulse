@@ -1,11 +1,9 @@
 package com.jobpulse.dto.request;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,29 +15,30 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ScheduleDTO {
 
-    @NotNull(message = "Schedule type is required")
-    private ScheduleType type;
+  @NotNull(message = "Schedule type is required")
+  private ScheduleType type;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime runAt;
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  private LocalDateTime runAt;
 
-    // Only for RECURRING
-    private Frequency frequency;
-    
-    @Min(value = 1, message = "Interval must be at least 1")
-    private Integer interval;
+  // Only for RECURRING
+  private Frequency frequency;
 
-    // Only for CRON
-    private String cronExpression;
-       public enum ScheduleType {
+  @Min(value = 1, message = "Interval must be at least 1")
+  private Integer interval;
+
+  // Only for CRON
+  private String cronExpression;
+
+  public enum ScheduleType {
     ONE_TIME,
     RECURRING,
     CRON
-}
+  }
 
-public enum Frequency {
+  public enum Frequency {
     MINUTES,
     HOURS,
     DAYS
-}
+  }
 }

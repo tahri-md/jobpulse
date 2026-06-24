@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -31,7 +31,7 @@ export interface JobTemplateRequest {
 export class JobTemplateService {
   private readonly apiUrl = `${environment.apiUrl}/templates`;
 
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
   create(template: JobTemplateRequest): Observable<JobTemplate> {
     return this.http.post<JobTemplate>(this.apiUrl, template);

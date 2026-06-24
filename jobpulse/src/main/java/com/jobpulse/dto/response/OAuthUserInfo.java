@@ -12,10 +12,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OAuthUserInfo {
-    
-    private String email;
-    private String name;
-    private String avatar;
-    private String provider;
-    private String providerId;
+
+  private String email;
+  private String name;
+  private String avatar;
+  private String provider;
+  private String providerId;
 }

@@ -436,8 +436,8 @@ export class SidebarComponent {
   collapsed = signal(this.loadState());
   collapsedChange = output<boolean>();
 
-  private auth = inject(AuthService);
-  private themeService = inject(ThemeService);
+  protected readonly auth = inject(AuthService);
+  protected readonly themeService = inject(ThemeService);
 
   userInitial(): string {
     return this.auth.currentUser()?.username?.charAt(0) || '?';

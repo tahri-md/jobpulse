@@ -5,42 +5,120 @@ export const routes: Routes = [
   {
     path: 'login',
     canActivate: [guestGuard],
-    loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
+    loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent),
   },
   {
     path: 'register',
     canActivate: [guestGuard],
-    loadComponent: () => import('./pages/register/register.component').then(m => m.RegisterComponent)
+    loadComponent: () =>
+      import('./pages/register/register.component').then((m) => m.RegisterComponent),
   },
   {
     path: 'verify-email',
     canActivate: [guestGuard],
-    loadComponent: () => import('./pages/verify-email/verify-email.component').then(m => m.VerifyEmailComponent)
+    loadComponent: () =>
+      import('./pages/verify-email/verify-email.component').then((m) => m.VerifyEmailComponent),
+  },
+  {
+    path: 'forgot-password',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./pages/forgot-password/forgot-password.component').then(
+        (m) => m.ForgotPasswordComponent,
+      ),
+  },
+  {
+    path: 'reset-password',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./pages/reset-password/reset-password.component').then(
+        (m) => m.ResetPasswordComponent,
+      ),
   },
   {
     path: 'google/callback',
-    loadComponent: () => import('./pages/google-callback/google-callback.component').then(m => m.GoogleCallbackComponent)
+    loadComponent: () =>
+      import('./pages/google-callback/google-callback.component').then(
+        (m) => m.GoogleCallbackComponent,
+      ),
   },
   {
     path: 'github/callback',
-    loadComponent: () => import('./pages/github-callback/github-callback.component').then(m => m.GitHubCallbackComponent)
+    loadComponent: () =>
+      import('./pages/github-callback/github-callback.component').then(
+        (m) => m.GitHubCallbackComponent,
+      ),
   },
   {
     path: '',
     canActivate: [authGuard],
-    loadComponent: () => import('./components/layout/layout.component').then(m => m.LayoutComponent),
+    loadComponent: () =>
+      import('./components/layout/layout.component').then((m) => m.LayoutComponent),
     children: [
-      { path: 'dashboard', loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent) },
-      { path: 'jobs', loadComponent: () => import('./pages/jobs/job-list/job-list.component').then(m => m.JobListComponent) },
-      { path: 'jobs/search', loadComponent: () => import('./pages/jobs/job-search/job-search.component').then(m => m.JobSearchComponent) },
-      { path: 'jobs/create', loadComponent: () => import('./pages/jobs/job-create/job-create.component').then(m => m.JobCreateComponent) },
-      { path: 'jobs/:id', loadComponent: () => import('./pages/jobs/job-detail/job-detail.component').then(m => m.JobDetailComponent) },
-      { path: 'templates', loadComponent: () => import('./pages/templates/templates.component').then(m => m.JobTemplatesComponent) },
-      { path: 'templates/:id/edit', loadComponent: () => import('./pages/templates/template-edit/template-edit.component').then(m => m.TemplateEditComponent) },
-      { path: 'dead-letter', loadComponent: () => import('./pages/dead-letter/dead-letter.component').then(m => m.DeadLetterComponent) },
-      { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent) },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-    ]
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+      },
+      {
+        path: 'jobs',
+        loadComponent: () =>
+          import('./pages/jobs/job-list/job-list.component').then((m) => m.JobListComponent),
+      },
+      {
+        path: 'jobs/search',
+        loadComponent: () =>
+          import('./pages/jobs/job-search/job-search.component').then((m) => m.JobSearchComponent),
+      },
+      {
+        path: 'jobs/create',
+        loadComponent: () =>
+          import('./pages/jobs/job-create/job-create.component').then((m) => m.JobCreateComponent),
+      },
+      {
+        path: 'jobs/:id',
+        loadComponent: () =>
+          import('./pages/jobs/job-detail/job-detail.component').then((m) => m.JobDetailComponent),
+      },
+      {
+        path: 'templates',
+        loadComponent: () =>
+          import('./pages/templates/templates.component').then((m) => m.JobTemplatesComponent),
+      },
+      {
+        path: 'templates/:id/edit',
+        loadComponent: () =>
+          import('./pages/templates/template-edit/template-edit.component').then(
+            (m) => m.TemplateEditComponent,
+          ),
+      },
+      {
+        path: 'dead-letter',
+        loadComponent: () =>
+          import('./pages/dead-letter/dead-letter.component').then((m) => m.DeadLetterComponent),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./pages/profile/profile.component').then((m) => m.ProfileComponent),
+      },
+      {
+        path: 'profile/change-password',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/profile/change-password/change-password.component').then(
+            (m) => m.ChangePasswordComponent,
+          ),
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
+      },
+    ],
   },
-  { path: '**', redirectTo: 'login' }
+  {
+    path: '**',
+    redirectTo: 'login',
+  },
 ];

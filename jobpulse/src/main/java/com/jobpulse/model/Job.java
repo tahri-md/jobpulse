@@ -1,10 +1,6 @@
 package com.jobpulse.model;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import com.jobpulse.dto.request.JobRequestDTO.JobType;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -14,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,27 +26,31 @@ import org.springframework.data.annotation.CreatedDate;
 @Setter
 @Builder
 public class Job {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private String name;
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private User owner;
-    private String cronExpression;
-    private boolean recurring;
-    private JobType jobType;
-    private String payload;
-    @Enumerated(EnumType.STRING)
-    private Status status;
-    private int retryCount;
-    private int maxRetries;
-    private LocalDateTime nextRunTime;
-    private String lastError;
-    @OneToMany(mappedBy = "job")
-    private List<DeadLetterJob> deadLetterJobs;
-    
-    @CreatedDate
-    private LocalDateTime createdAt;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
+  private String name;
+
+  @ManyToOne
+  @JoinColumn(name = "owner_id")
+  private User owner;
+
+  private String cronExpression;
+  private boolean recurring;
+  private JobType jobType;
+  private String payload;
+
+  @Enumerated(EnumType.STRING)
+  private Status status;
+
+  private int retryCount;
+  private int maxRetries;
+  private LocalDateTime nextRunTime;
+  private String lastError;
+
+  @OneToMany(mappedBy = "job")
+  private List<DeadLetterJob> deadLetterJobs;
+
+  @CreatedDate private LocalDateTime createdAt;
 }
