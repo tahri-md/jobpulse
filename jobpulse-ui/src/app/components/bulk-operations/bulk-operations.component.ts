@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { inject, Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JobService } from '../../services/job.service';
 import { ToastService } from '../../services/toast.service';
@@ -8,84 +8,89 @@ import { ToastService } from '../../services/toast.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="bulk-operations-container" *ngIf="selectedJobIds.length > 0">
-      <div class="bulk-actions-bar">
-        <span class="selection-info">{{ selectedJobIds.length }} job(s) selected</span>
-        <div class="action-buttons">
-          <button (click)="pauseJobs()" class="btn btn-warning">Pause Selected</button>
-          <button (click)="resumeJobs()" class="btn btn-info">Resume Selected</button>
-          <button (click)="deleteJobs()" class="btn btn-danger" 
-                  [disabled]="isProcessing">Delete Selected</button>
-          <button (click)="clearSelection()" class="btn btn-secondary">Clear Selection</button>
+    @if (selectedJobIds.length > 0) {
+      <div class="bulk-operations-container">
+        <div class="bulk-actions-bar">
+          <span class="selection-info">{{ selectedJobIds.length }} job(s) selected</span>
+          <div class="action-buttons">
+            <button (click)="pauseJobs()" class="btn btn-warning">Pause Selected</button>
+            <button (click)="resumeJobs()" class="btn btn-info">Resume Selected</button>
+            <button (click)="deleteJobs()" class="btn btn-danger" [disabled]="isProcessing">
+              Delete Selected
+            </button>
+            <button (click)="clearSelection()" class="btn btn-secondary">Clear Selection</button>
+          </div>
         </div>
       </div>
-    </div>
+    }
   `,
-  styles: [`
-    .bulk-operations-container {
-      background: var(--bg-secondary);
-      padding: 15px 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      border-left: 4px solid var(--primary-color);
-    }
+  styles: [
+    `
+      .bulk-operations-container {
+        background: var(--bg-secondary);
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid var(--primary-color);
+      }
 
-    .bulk-actions-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px;
-    }
+      .bulk-actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+      }
 
-    .selection-info {
-      font-weight: 600;
-      color: var(--text-primary);
-    }
+      .selection-info {
+        font-weight: 600;
+        color: var(--text-primary);
+      }
 
-    .action-buttons {
-      display: flex;
-      gap: 10px;
-    }
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+      }
 
-    .btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: opacity 0.2s;
-    }
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: opacity 0.2s;
+      }
 
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
 
-    .btn-warning {
-      background: var(--warning-color);
-      color: white;
-    }
+      .btn-warning {
+        background: var(--warning-color);
+        color: white;
+      }
 
-    .btn-info {
-      background: var(--info-color);
-      color: white;
-    }
+      .btn-info {
+        background: var(--info-color);
+        color: white;
+      }
 
-    .btn-danger {
-      background: var(--danger-color);
-      color: white;
-    }
+      .btn-danger {
+        background: var(--danger-color);
+        color: white;
+      }
 
-    .btn-secondary {
-      background: var(--bg-tertiary);
-      color: var(--text-primary);
-    }
+      .btn-secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+      }
 
-    .btn:hover:not(:disabled) {
-      opacity: 0.8;
-    }
-  `]
+      .btn:hover:not(:disabled) {
+        opacity: 0.8;
+      }
+    `,
+  ],
 })
 export class BulkOperationsComponent {
   @Input() selectedJobIds: number[] = [];
@@ -93,10 +98,8 @@ export class BulkOperationsComponent {
 
   isProcessing = false;
 
-  constructor(
-    private jobService: JobService,
-    private toast: ToastService
-  ) {}
+  private jobService = inject(JobService);
+  private toast = inject(ToastService);
 
   pauseJobs(): void {
     if (confirm(`Pause ${this.selectedJobIds.length} jobs?`)) {
@@ -111,7 +114,7 @@ export class BulkOperationsComponent {
         error: () => {
           this.toast.error('Failed to pause jobs');
           this.isProcessing = false;
-        }
+        },
       });
     }
   }
@@ -129,7 +132,7 @@ export class BulkOperationsComponent {
         error: () => {
           this.toast.error('Failed to resume jobs');
           this.isProcessing = false;
-        }
+        },
       });
     }
   }
@@ -147,7 +150,7 @@ export class BulkOperationsComponent {
         error: () => {
           this.toast.error('Failed to delete jobs');
           this.isProcessing = false;
-        }
+        },
       });
     }
   }

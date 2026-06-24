@@ -14,23 +14,25 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
       </main>
     </div>
   `,
-  styles: [`
-    .layout {
-      display: flex;
-      min-height: 100vh;
-      background: var(--bg-root);
-    }
-    .main-content {
-      flex: 1;
-      margin-left: 260px;
-      padding: 32px;
-      overflow-y: auto;
-      transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .main-content.collapsed {
-      margin-left: 64px;
-    }
-  `]
+  styles: [
+    `
+      .layout {
+        display: flex;
+        min-height: 100vh;
+        background: var(--bg-root);
+      }
+      .main-content {
+        flex: 1;
+        margin-left: 260px;
+        padding: 32px;
+        overflow-y: auto;
+        transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .main-content.collapsed {
+        margin-left: 64px;
+      }
+    `,
+  ],
 })
 export class LayoutComponent {
   sidebarCollapsed = signal(localStorage.getItem('jp-sidebar') === 'collapsed');

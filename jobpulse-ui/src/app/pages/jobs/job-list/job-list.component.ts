@@ -1,10 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { inject, Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { JobService } from '../../../services/job.service';
 import { ToastService } from '../../../services/toast.service';
-import { JobResponse, Status } from '../../../models';
+import { JobResponse } from '../../../models';
 
 @Component({
   selector: 'app-job-list',
@@ -66,10 +66,18 @@ import { JobResponse, Status } from '../../../models';
               <span class="selected-count">{{ selectedJobs.size }} selected</span>
             </div>
             <div class="bulk-actions">
-              <button class="action-btn" (click)="bulkPause()" title="Pause selected">Pause All</button>
-              <button class="action-btn accent" (click)="bulkResume()" title="Resume selected">Resume All</button>
-              <button class="action-btn danger" (click)="bulkDelete()" title="Delete selected">Delete All</button>
-              <button class="action-btn" (click)="clearSelection()" title="Clear selection">Clear</button>
+              <button class="action-btn" (click)="bulkPause()" title="Pause selected">
+                Pause All
+              </button>
+              <button class="action-btn accent" (click)="bulkResume()" title="Resume selected">
+                Resume All
+              </button>
+              <button class="action-btn danger" (click)="bulkDelete()" title="Delete selected">
+                Delete All
+              </button>
+              <button class="action-btn" (click)="clearSelection()" title="Clear selection">
+                Clear
+              </button>
             </div>
           </div>
         }
@@ -78,8 +86,12 @@ import { JobResponse, Status } from '../../../models';
             <thead>
               <tr>
                 <th class="checkbox-cell">
-                  <input type="checkbox" [checked]="selectedJobs.size === filteredJobs.length && filteredJobs.length > 0" 
-                    (change)="toggleSelectAll($event)" class="select-checkbox">
+                  <input
+                    type="checkbox"
+                    [checked]="selectedJobs.size === filteredJobs.length && filteredJobs.length > 0"
+                    (change)="toggleSelectAll($event)"
+                    class="select-checkbox"
+                  />
                 </th>
                 <th>ID</th>
                 <th>Name</th>
@@ -95,25 +107,49 @@ import { JobResponse, Status } from '../../../models';
               @for (job of filteredJobs; track job.id) {
                 <tr [class.selected-row]="selectedJobs.has(job.id)">
                   <td class="checkbox-cell">
-                    <input type="checkbox" [checked]="selectedJobs.has(job.id)" 
-                      (change)="toggleJobSelection(job.id)" class="select-checkbox">
+                    <input
+                      type="checkbox"
+                      [checked]="selectedJobs.has(job.id)"
+                      (change)="toggleJobSelection(job.id)"
+                      class="select-checkbox"
+                    />
                   </td>
                   <td class="id-cell">#{{ job.id }}</td>
                   <td class="job-name">{{ job.name }}</td>
-                  <td><span class="badge badge-type">{{ job.jobType }}</span></td>
-                  <td><span class="badge" [class]="'badge badge-' + (job.status || '').toLowerCase()">{{ job.status }}</span></td>
+                  <td>
+                    <span class="badge badge-type">{{ job.jobType }}</span>
+                  </td>
+                  <td>
+                    <span
+                      class="badge"
+                      [class]="'badge badge-' + (job.status || '').toLowerCase()"
+                      >{{ job.status }}</span
+                    >
+                  </td>
                   <td class="mono">{{ job.recurring ? 'Yes' : '—' }}</td>
                   <td class="mono">{{ job.retryCount }}/{{ job.maxRetries }}</td>
-                  <td>{{ job.nextRunTime ? (job.nextRunTime | date:'medium') : '—' }}</td>
+                  <td>{{ job.nextRunTime ? (job.nextRunTime | date: 'medium') : '—' }}</td>
                   <td class="actions-cell">
-                    <a [routerLink]="['/jobs', job.id]" class="action-btn" title="View details">View</a>
-                    @if (job.status === 'PENDING' || job.status === 'RUNNING' || job.status === 'RETRYING') {
-                      <button class="action-btn" (click)="pauseJob(job)" title="Pause">Pause</button>
+                    <a [routerLink]="['/jobs', job.id]" class="action-btn" title="View details"
+                      >View</a
+                    >
+                    @if (
+                      job.status === 'PENDING' ||
+                      job.status === 'RUNNING' ||
+                      job.status === 'RETRYING'
+                    ) {
+                      <button class="action-btn" (click)="pauseJob(job)" title="Pause">
+                        Pause
+                      </button>
                     }
                     @if (job.status === 'PAUSED') {
-                      <button class="action-btn accent" (click)="resumeJob(job)" title="Resume">Resume</button>
+                      <button class="action-btn accent" (click)="resumeJob(job)" title="Resume">
+                        Resume
+                      </button>
                     }
-                    <button class="action-btn danger" (click)="deleteJob(job)" title="Delete">Delete</button>
+                    <button class="action-btn danger" (click)="deleteJob(job)" title="Delete">
+                      Delete
+                    </button>
                   </td>
                 </tr>
               }
@@ -123,85 +159,262 @@ import { JobResponse, Status } from '../../../models';
       }
     </div>
   `,
-  styles: [`
-    .page { max-width: 1200px; }
-    .page-header {
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
-    }
-    .page-header h1 { font-size: 26px; font-weight: 700; color: var(--text-primary); margin: 0; letter-spacing: -0.5px; }
-    .subtitle { font-size: 14px; color: var(--text-muted); margin: 4px 0 0; }
-    .btn {
-      padding: 9px 20px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600;
-      cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s;
-    }
-    .btn-primary { background: var(--accent); color: var(--accent-text); }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-    .search-input, .filter-select {
-      padding: 9px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px;
-      outline: none; transition: border-color 0.15s; background: var(--bg-surface); color: var(--text-secondary);
-    }
-    .search-input { flex: 1; min-width: 200px; }
-    .search-input:focus, .filter-select:focus { border-color: var(--accent); }
-    .search-input::placeholder { color: var(--text-placeholder); }
-    .table-container {
-      background: var(--bg-surface); border-radius: 8px; overflow-x: auto; border: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
-    }
-    .table { width: 100%; border-collapse: collapse; }
-    .table th {
-      text-align: left; padding: 12px 14px; font-size: 11px; font-weight: 600; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border);
-    }
-    .table td { padding: 12px 14px; font-size: 14px; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); }
-    .table tr:hover td { background: var(--bg-hover); }
-    .id-cell { font-size: 13px; color: var(--text-muted); font-weight: 500; font-family: 'JetBrains Mono', monospace; }
-    .job-name { font-weight: 600; color: var(--text-primary); }
-    .mono { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-muted); }
-    .badge {
-      padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .badge-type { background: var(--badge-type-bg); color: var(--badge-type-text); }
-    .badge-pending { background: var(--badge-pending-bg); color: var(--badge-pending-text); }
-    .badge-running { background: var(--badge-running-bg); color: var(--badge-running-text); }
-    .badge-success { background: var(--badge-success-bg); color: var(--badge-success-text); }
-    .badge-failed { background: var(--badge-failed-bg); color: var(--badge-failed-text); }
-    .badge-retrying { background: var(--badge-retrying-bg); color: var(--badge-retrying-text); }
-    .badge-paused { background: var(--badge-paused-bg); color: var(--badge-paused-text); }
-    .badge-dead { background: var(--badge-dead-bg); color: var(--badge-dead-text); }
-    .actions-cell { display: flex; gap: 6px; align-items: center; }
-    .action-btn {
-      background: none; border: 1px solid var(--border-hover); cursor: pointer; font-size: 12px;
-      padding: 4px 10px; border-radius: 4px; transition: all 0.15s; text-decoration: none;
-      color: var(--text-muted); font-weight: 500;
-    }
-    .action-btn:hover { border-color: var(--text-muted); color: var(--text-secondary); background: var(--bg-elevated); }
-    .action-btn.accent { color: var(--accent); border-color: var(--accent-muted); }
-    .action-btn.accent:hover { background: var(--accent-muted); border-color: var(--accent); }
-    .action-btn.danger { color: var(--danger); border-color: var(--danger-muted); }
-    .action-btn.danger:hover { background: var(--danger-muted); border-color: var(--danger); }
-    .checkbox-cell { width: 40px; text-align: center; }
-    .select-checkbox { cursor: pointer; width: 16px; height: 16px; }
-    .selected-row { background: var(--accent-muted) !important; }
-    .bulk-toolbar {
-      display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;
-      background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border);
-      margin-bottom: 12px; border-bottom: 2px solid var(--accent);
-    }
-    .bulk-info { display: flex; align-items: center; gap: 12px; }
-    .selected-count { font-weight: 600; color: var(--accent); font-size: 14px; }
-    .bulk-actions { display: flex; gap: 8px; }
-    .loading-state, .empty-state {
-      text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--bg-surface);
-      border-radius: 8px; border: 1px solid var(--border);
-    }
-    .spinner {
-      width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--accent);
-      border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  `]
+  styles: [
+    `
+      .page {
+        max-width: 1200px;
+      }
+      .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+      }
+      .page-header h1 {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+        letter-spacing: -0.5px;
+      }
+      .subtitle {
+        font-size: 14px;
+        color: var(--text-muted);
+        margin: 4px 0 0;
+      }
+      .btn {
+        padding: 9px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: var(--accent-text);
+      }
+      .btn-primary:hover {
+        background: var(--accent-hover);
+      }
+      .filters {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+      .search-input,
+      .filter-select {
+        padding: 9px 14px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.15s;
+        background: var(--bg-surface);
+        color: var(--text-secondary);
+      }
+      .search-input {
+        flex: 1;
+        min-width: 200px;
+      }
+      .search-input:focus,
+      .filter-select:focus {
+        border-color: var(--accent);
+      }
+      .search-input::placeholder {
+        color: var(--text-placeholder);
+      }
+      .table-container {
+        background: var(--bg-surface);
+        border-radius: 8px;
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+      }
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .table th {
+        text-align: left;
+        padding: 12px 14px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--border);
+      }
+      .table td {
+        padding: 12px 14px;
+        font-size: 14px;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .table tr:hover td {
+        background: var(--bg-hover);
+      }
+      .id-cell {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 500;
+        font-family: 'JetBrains Mono', monospace;
+      }
+      .job-name {
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+      .mono {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+      .badge {
+        padding: 3px 10px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .badge-type {
+        background: var(--badge-type-bg);
+        color: var(--badge-type-text);
+      }
+      .badge-pending {
+        background: var(--badge-pending-bg);
+        color: var(--badge-pending-text);
+      }
+      .badge-running {
+        background: var(--badge-running-bg);
+        color: var(--badge-running-text);
+      }
+      .badge-success {
+        background: var(--badge-success-bg);
+        color: var(--badge-success-text);
+      }
+      .badge-failed {
+        background: var(--badge-failed-bg);
+        color: var(--badge-failed-text);
+      }
+      .badge-retrying {
+        background: var(--badge-retrying-bg);
+        color: var(--badge-retrying-text);
+      }
+      .badge-paused {
+        background: var(--badge-paused-bg);
+        color: var(--badge-paused-text);
+      }
+      .badge-dead {
+        background: var(--badge-dead-bg);
+        color: var(--badge-dead-text);
+      }
+      .actions-cell {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .action-btn {
+        background: none;
+        border: 1px solid var(--border-hover);
+        cursor: pointer;
+        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 4px;
+        transition: all 0.15s;
+        text-decoration: none;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+      .action-btn:hover {
+        border-color: var(--text-muted);
+        color: var(--text-secondary);
+        background: var(--bg-elevated);
+      }
+      .action-btn.accent {
+        color: var(--accent);
+        border-color: var(--accent-muted);
+      }
+      .action-btn.accent:hover {
+        background: var(--accent-muted);
+        border-color: var(--accent);
+      }
+      .action-btn.danger {
+        color: var(--danger);
+        border-color: var(--danger-muted);
+      }
+      .action-btn.danger:hover {
+        background: var(--danger-muted);
+        border-color: var(--danger);
+      }
+      .checkbox-cell {
+        width: 40px;
+        text-align: center;
+      }
+      .select-checkbox {
+        cursor: pointer;
+        width: 16px;
+        height: 16px;
+      }
+      .selected-row {
+        background: var(--accent-muted) !important;
+      }
+      .bulk-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: var(--bg-surface);
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        margin-bottom: 12px;
+        border-bottom: 2px solid var(--accent);
+      }
+      .bulk-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .selected-count {
+        font-weight: 600;
+        color: var(--accent);
+        font-size: 14px;
+      }
+      .bulk-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .loading-state,
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-muted);
+        background: var(--bg-surface);
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+      .spinner {
+        width: 28px;
+        height: 28px;
+        border: 2px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 12px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    `,
+  ],
 })
 export class JobListComponent implements OnInit {
   allJobs: JobResponse[] = [];
@@ -212,11 +425,9 @@ export class JobListComponent implements OnInit {
   typeFilter = '';
   selectedJobs = new Set<number>();
 
-  constructor(
-    private jobService: JobService,
-    private toast: ToastService,
-    private cdr: ChangeDetectorRef
-  ) {}
+  private jobService = inject(JobService);
+  private toast = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.loadJobs();
@@ -236,13 +447,14 @@ export class JobListComponent implements OnInit {
         this.toast.error('Failed to load jobs.');
         this.loading = false;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
   applyFilters(): void {
-    this.filteredJobs = this.allJobs.filter(job => {
-      const matchSearch = !this.searchTerm ||
+    this.filteredJobs = this.allJobs.filter((job) => {
+      const matchSearch =
+        !this.searchTerm ||
         (job.name || '').toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         (job.jobType || '').toLowerCase().includes(this.searchTerm.toLowerCase());
       const matchStatus = !this.statusFilter || job.status === this.statusFilter;
@@ -257,7 +469,7 @@ export class JobListComponent implements OnInit {
         this.toast.success(`Job "${job.name}" paused.`);
         this.loadJobs();
       },
-      error: () => this.toast.error('Failed to pause job.')
+      error: () => this.toast.error('Failed to pause job.'),
     });
   }
 
@@ -267,7 +479,7 @@ export class JobListComponent implements OnInit {
         this.toast.success(`Job "${job.name}" resumed.`);
         this.loadJobs();
       },
-      error: () => this.toast.error('Failed to resume job.')
+      error: () => this.toast.error('Failed to resume job.'),
     });
   }
 
@@ -278,7 +490,7 @@ export class JobListComponent implements OnInit {
         this.toast.success(`Job "${job.name}" deleted.`);
         this.loadJobs();
       },
-      error: () => this.toast.error('Failed to delete job.')
+      error: () => this.toast.error('Failed to delete job.'),
     });
   }
 
@@ -293,7 +505,7 @@ export class JobListComponent implements OnInit {
   toggleSelectAll(event: Event): void {
     const isChecked = (event.target as HTMLInputElement).checked;
     if (isChecked) {
-      this.filteredJobs.forEach(job => this.selectedJobs.add(job.id));
+      this.filteredJobs.forEach((job) => this.selectedJobs.add(job.id));
     } else {
       this.clearSelection();
     }
@@ -315,7 +527,7 @@ export class JobListComponent implements OnInit {
         this.clearSelection();
         this.loadJobs();
       },
-      error: () => this.toast.error('Failed to pause jobs.')
+      error: () => this.toast.error('Failed to pause jobs.'),
     });
   }
 
@@ -331,7 +543,7 @@ export class JobListComponent implements OnInit {
         this.clearSelection();
         this.loadJobs();
       },
-      error: () => this.toast.error('Failed to resume jobs.')
+      error: () => this.toast.error('Failed to resume jobs.'),
     });
   }
 
@@ -348,7 +560,7 @@ export class JobListComponent implements OnInit {
         this.clearSelection();
         this.loadJobs();
       },
-      error: () => this.toast.error('Failed to delete jobs.')
+      error: () => this.toast.error('Failed to delete jobs.'),
     });
   }
 }

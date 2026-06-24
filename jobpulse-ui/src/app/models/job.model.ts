@@ -1,10 +1,10 @@
-import { JobType, ScheduleType, Status, TimeUnit, JobFailureReason } from './enums';
+import { JobType, ScheduleType, Status, TimeUnit } from './enums';
 
 export interface HttpJobPayload {
   url: string;
   method: string;
   headers: Record<string, string>;
-  body: any;
+  body: Record<string, unknown>;
   timeoutSeconds: number;
 }
 
@@ -83,6 +83,6 @@ export interface ApiError {
   status: number;
   error: string;
   message: string;
-  details: any;
+  details: Record<string, unknown>;
   path: string;
 }

@@ -1,14 +1,19 @@
 package com.jobpulse.dto.request;
 
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import lombok.Data;
-
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class HttpJobPayload {
-    public String url;
-    public String method;
-    public Map<String, String> headers;
-    public Object body;
-    public Integer timeoutSeconds;
+  private String url;
+  private String method;
+  private Map<String, String> headers;
+  private Object body;
+  private Integer timeoutSeconds;
 }
