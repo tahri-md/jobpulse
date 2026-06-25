@@ -2,6 +2,8 @@ package com.jobpulse.config;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class JwtService {
 
   @Value("${jwt.secret}")
@@ -133,23 +136,18 @@ public class JwtService {
     return (List<String>) claims.get("roles");
   }
 
-  public boolean validateToken(String token) {
+ public boolean validateToken(String token) {
     try {
-      Jwts.parser().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
-      return true;
-    } catch (SecurityException ex) {
-      System.err.println("Invalid JWT signature");
-    } catch (MalformedJwtException ex) {
-      System.err.println("Invalid JWT token");
-    } catch (ExpiredJwtException ex) {
-      System.err.println("Expired JWT token");
-    } catch (UnsupportedJwtException ex) {
-      System.err.println("Unsupported JWT token");
-    } catch (IllegalArgumentException ex) {
-      System.err.println("JWT claims string is empty");
+        Jwts.parser()
+            .setSigningKey(getSigningKey())
+            .build()
+            .parseClaimsJws(token);
+        return true;
+    } catch (JwtException | IllegalArgumentException ex) {
+        log.warn("Invalid JWT token: {}", ex.getMessage());
+        return false;
     }
-    return false;
-  }
+}
 
   public Claims getClaimsFromToken(String token) {
     return Jwts.parser().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
