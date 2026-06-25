@@ -49,6 +49,9 @@ public class Job {
   private LocalDateTime nextRunTime;
   private String lastError;
 
+  @OneToMany(mappedBy = "job", orphanRemoval = true)
+  private List<JobHistory> histories;
+
   @OneToMany(mappedBy = "job")
   private List<DeadLetterJob> deadLetterJobs;
 
