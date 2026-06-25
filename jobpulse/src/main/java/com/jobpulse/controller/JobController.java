@@ -8,11 +8,9 @@ import com.jobpulse.dto.response.JobResponse;
 import com.jobpulse.dto.response.JobStatsResponse;
 import com.jobpulse.model.Status;
 import com.jobpulse.service.JobService;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,7 +28,8 @@ public class JobController {
   private final JobService jobService;
 
   @PostMapping("/full")
-  @PreAuthorize("hasRole('ADMIN') or #request.jobType != T(com.jobpulse.dto.request.JobRequestDTO.JobType).SCRIPT")
+  @PreAuthorize(
+      "hasRole('ADMIN') or #request.jobType != T(com.jobpulse.dto.request.JobRequestDTO.JobType).SCRIPT")
   public ResponseEntity<JobResponse> createJobFull(
       @RequestBody JobRequestDTO request, @AuthenticationPrincipal UUID userId) {
     log.info("Creating full job: {} for user: {}", request.getName(), userId);

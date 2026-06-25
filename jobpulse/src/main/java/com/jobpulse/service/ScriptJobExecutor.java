@@ -12,19 +12,20 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @ExecutorType(JobRequestDTO.JobType.SCRIPT)
 @Slf4j
+@RequiredArgsConstructor
 public class ScriptJobExecutor implements JobExecutor {
 
   private static final int DEFAULT_TIMEOUT = 300;
   private static final int MAX_OUTPUT_LENGTH = 5000;
 
-  @Autowired private ObjectMapper mapper;
+  private final ObjectMapper mapper;
 
   @Override
   public void execute(Job job) {

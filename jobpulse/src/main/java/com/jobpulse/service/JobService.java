@@ -93,7 +93,7 @@ public class JobService {
               scheduleDTO.getFrequency().name(), scheduleDTO.getInterval());
       job.setCronExpression(cronExpression);
       job.setNextRunTime(CronExpressionUtil.getNextRunTime(cronExpression, LocalDateTime.now()));
-      log.debug("Created RECURRING job with cron: {}", cronExpression);
+      log.debug("Created RECUjoRRING job with cron: {}", cronExpression);
 
     } else if (scheduleDTO.getType() == ScheduleType.CRON) {
       if (scheduleDTO.getCronExpression() == null || scheduleDTO.getCronExpression().isBlank()) {
