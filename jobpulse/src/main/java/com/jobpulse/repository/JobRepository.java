@@ -23,6 +23,9 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
   List<Job> findByOwnerAndStatus(User owner, Status status);
 
+  @Query("SELECT j FROM Job j WHERE j.nextRunTime <= :now AND j.status IN ('PENDING', 'RETRYING')")
+  List<Job> findDueJobs(@Param("now") LocalDateTime now);
+
   @Query(
       "SELECT j FROM Job j WHERE j.owner = :owner AND LOWER(j.name) LIKE LOWER(CONCAT('%', :query, '%'))")
   List<Job> searchByOwnerAndQuery(@Param("owner") User owner, @Param("query") String query);

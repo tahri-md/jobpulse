@@ -4,7 +4,10 @@ import com.jobpulse.dto.others.JobFailureReason;
 import com.jobpulse.dto.request.JobRequestDTO;
 import com.jobpulse.dto.request.ScheduleDTO;
 import com.jobpulse.dto.request.ScheduleDTO.ScheduleType;
+import com.jobpulse.dto.response.DeadLetterJobResponse;
+import com.jobpulse.dto.response.JobHistoryResponse;
 import com.jobpulse.dto.response.JobResponse;
+import com.jobpulse.dto.response.JobStatsResponse;
 import com.jobpulse.exception.JobExecutionException;
 import com.jobpulse.exception.NonRetryableJobException;
 import com.jobpulse.exception.ResourceNotFoundException;
@@ -20,45 +23,49 @@ import com.jobpulse.repository.UserRepository;
 import com.jobpulse.util.CronExpressionUtil;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class JobService {
 
-  @Autowired private JobRepository jobRepository;
+  private final JobRepository jobRepository;
+  private final UserRepository userRepository;
+  private final RedisTemplate<String, String> redisTemplate;
+  private final JobExecutorFactory executorFactory;
+  private final DeadLetterJobRepository deadLetterJobRepository;
+  private final JobHistoryRepository jobHistoryRepository;
+  private final RetryPolicy retryPolicy;
 
-  @Autowired private UserRepository userRepository;
-  @Autowired RedisTemplate<String, String> redisTemplate;
-  @Autowired JobExecutorFactory executorFactory;
-
-  @Autowired private DeadLetterJobRepository deadLetterJobRepository;
-  @Autowired private JobHistoryRepository jobHistoryRepository;
-
-  @Autowired private RetryPolicy retryPolicy;
+  private User resolveUser(UUID userId) {
+    return userRepository
+        .findById(userId)
+        .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+  }
 
   public void createJobFull(JobRequestDTO dto) {
-    log.info("Creating job: {}", dto.getName());
-    Job job = new Job();
+    if (dto.getOwnerId() == null) throw new RuntimeException("ID cant be null");
+    log.info("Owner Id: {}", dto.getOwnerId());
 
-    job.setName(dto.getName());
-    job.setJobType(dto.getJobType());
-    job.setOwner(
-        userRepository
-            .findById(dto.getOwnerId())
-            .orElseThrow(
-                () ->
-                    new ResourceNotFoundException("Owner not found with ID: " + dto.getOwnerId())));
-    job.setMaxRetries(dto.getMaxRetries());
-    job.setRetryCount(0);
-    job.setStatus(Status.PENDING);
-    job.setLastError(null);
-    job.setPayload(dto.getPayload());
+    log.info("Creating job: {}", dto.getName());
+    Job job =
+        Job.builder()
+            .name(dto.getName())
+            .jobType(dto.getJobType())
+            .owner(resolveUser(dto.getOwnerId()))
+            .maxRetries(dto.getMaxRetries())
+            .retryCount(0)
+            .status(Status.PENDING)
+            .lastError(null)
+            .payload(dto.getPayload())
+            .build();
 
     ScheduleDTO scheduleDTO = dto.getSchedule();
 
@@ -93,12 +100,12 @@ public class JobService {
         throw new IllegalArgumentException("Cron expression required for CRON schedule type.");
       }
       CronExpressionUtil.validateCronExpression(scheduleDTO.getCronExpression());
-
       job.setRecurring(true);
       job.setCronExpression(scheduleDTO.getCronExpression());
       job.setNextRunTime(
           CronExpressionUtil.getNextRunTime(scheduleDTO.getCronExpression(), LocalDateTime.now()));
       log.debug("Created CRON job with expression: {}", scheduleDTO.getCronExpression());
+
     } else {
       throw new IllegalArgumentException("Unsupported schedule type: " + scheduleDTO.getType());
     }
@@ -111,15 +118,7 @@ public class JobService {
   public void runDueJobs() throws Exception {
     log.debug("Checking for due jobs...");
     LocalDateTime now = LocalDateTime.now();
-    List<Job> dueJobs =
-        jobRepository.findAll().stream()
-            .filter(job -> job.getNextRunTime() != null && !job.getNextRunTime().isAfter(now))
-            .filter(
-                job ->
-                    job.getStatus().equals(Status.PENDING)
-                        || job.getStatus().equals(Status.RETRYING))
-            .toList();
-
+    List<Job> dueJobs = jobRepository.findDueJobs(now);
     log.info("Found {} due jobs to execute", dueJobs.size());
 
     for (Job job : dueJobs) {
@@ -177,7 +176,6 @@ public class JobService {
 
       JobFailureReason reason = e.getReason();
       boolean retryable = retryPolicy.isRetryable(reason);
-
       int nextRetry = job.getRetryCount() + 1;
       job.setRetryCount(nextRetry);
 
@@ -185,14 +183,12 @@ public class JobService {
         long delayMinutes = (long) Math.pow(2, nextRetry);
         job.setStatus(Status.RETRYING);
         job.setNextRunTime(LocalDateTime.now().plusMinutes(delayMinutes));
-
         log.info(
             "Job scheduled for retry {} of {} with {} minute delay: {}",
             nextRetry,
             job.getMaxRetries(),
             delayMinutes,
             job.getName());
-
       } else {
         job.setStatus(Status.FAILED);
         job.setNextRunTime(null);
@@ -206,7 +202,6 @@ public class JobService {
       }
 
       job.setLastError(e.getMessage());
-
       jobHistoryRepository.save(
           JobHistory.builder()
               .job(job)
@@ -240,9 +235,7 @@ public class JobService {
   }
 
   private LocalDateTime calculateNextRun(Job job) {
-    if (!job.isRecurring() || job.getCronExpression() == null) {
-      return null;
-    }
+    if (!job.isRecurring() || job.getCronExpression() == null) return null;
     try {
       return CronExpressionUtil.getNextRunTime(job.getCronExpression(), LocalDateTime.now());
     } catch (Exception e) {
@@ -251,21 +244,24 @@ public class JobService {
     }
   }
 
-  public List<JobResponse> getJobs(User user) {
+  public List<JobResponse> getJobs(UUID userId) {
+    User user = resolveUser(userId);
     return jobRepository.findByOwner(user).stream()
         .filter(job -> job.getStatus() != Status.FAILED)
         .map(JobService::mapToJobResponse)
         .toList();
   }
 
-  public JobResponse getJob(long id, User user) {
+  public JobResponse getJob(long id, UUID userId) {
+    User user = resolveUser(userId);
     return mapToJobResponse(
         jobRepository
             .findByIdAndOwner(id, user)
             .orElseThrow(() -> new ResourceNotFoundException("Job not found")));
   }
 
-  public void deleteJob(long id, User user) {
+  public void deleteJob(long id, UUID userId) {
+    User user = resolveUser(userId);
     Job job =
         jobRepository
             .findByIdAndOwner(id, user)
@@ -276,7 +272,7 @@ public class JobService {
     jobRepository.delete(job);
   }
 
-  public JobResponse replayDeadJob(Long deadJobId, User user) {
+  public JobResponse replayDeadJob(Long deadJobId, UUID userId) {
     log.info("Replaying dead letter job: {}", deadJobId);
 
     DeadLetterJob dlJob =
@@ -287,12 +283,11 @@ public class JobService {
                     new ResourceNotFoundException(
                         "Dead letter job not found with ID: " + deadJobId));
 
-    if (dlJob.getJob().getOwner() == null || dlJob.getJob().getOwner().getId() != user.getId()) {
+    if (dlJob.getJob().getOwner() == null || !dlJob.getJob().getOwner().getId().equals(userId)) {
       throw new ResourceNotFoundException("Dead letter job not found with ID: " + deadJobId);
     }
 
     Job originalJob = dlJob.getJob();
-
     originalJob.setRetryCount(0);
     originalJob.setStatus(Status.PENDING);
     originalJob.setLastError(null);
@@ -312,7 +307,6 @@ public class JobService {
 
     Job savedJob = jobRepository.save(originalJob);
     deadLetterJobRepository.delete(dlJob);
-
     log.info(
         "Dead letter job replayed successfully: {} (ID: {})",
         originalJob.getName(),
@@ -320,7 +314,8 @@ public class JobService {
     return mapToJobResponse(savedJob);
   }
 
-  public List<DeadLetterJobResponse> getDeadLetterJobs(User user) {
+  public List<DeadLetterJobResponse> getDeadLetterJobs(UUID userId) {
+    User user = resolveUser(userId);
     return deadLetterJobRepository.findByJob_Owner(user).stream()
         .map(
             dlj ->
@@ -337,7 +332,8 @@ public class JobService {
         .toList();
   }
 
-  public List<JobHistoryResponse> getJobHistory(long jobId, User user) {
+  public List<JobHistoryResponse> getJobHistory(long jobId, UUID userId) {
+    User user = resolveUser(userId);
     Job job =
         jobRepository
             .findByIdAndOwner(jobId, user)
@@ -355,7 +351,8 @@ public class JobService {
         .toList();
   }
 
-  public JobStatsResponse getJobStats(User user) {
+  public JobStatsResponse getJobStats(UUID userId) {
+    User user = resolveUser(userId);
     List<Job> allJobs = jobRepository.findByOwner(user);
     List<DeadLetterJob> deadLetterJobs = deadLetterJobRepository.findByJob_Owner(user);
 
@@ -376,7 +373,8 @@ public class JobService {
         .build();
   }
 
-  public JobResponse pauseJob(long id, User user) {
+  public JobResponse pauseJob(long id, UUID userId) {
+    User user = resolveUser(userId);
     Job job =
         jobRepository
             .findByIdAndOwner(id, user)
@@ -385,7 +383,8 @@ public class JobService {
     return mapToJobResponse(jobRepository.save(job));
   }
 
-  public JobResponse resumeJob(long id, User user) {
+  public JobResponse resumeJob(long id, UUID userId) {
+    User user = resolveUser(userId);
     Job job =
         jobRepository
             .findByIdAndOwner(id, user)
@@ -401,31 +400,28 @@ public class JobService {
     return mapToJobResponse(jobRepository.save(job));
   }
 
-  public void bulkOperation(List<Long> jobIds, String operation, User user) {
+  public void bulkOperation(List<Long> jobIds, String operation, UUID userId) {
+    User user = resolveUser(userId);
     List<Job> jobs =
         jobRepository.findByOwner(user).stream().filter(j -> jobIds.contains(j.getId())).toList();
 
-    if (jobs.isEmpty()) {
-      throw new ResourceNotFoundException("No jobs found");
-    }
+    if (jobs.isEmpty()) throw new ResourceNotFoundException("No jobs found");
 
     switch (operation.toLowerCase()) {
       case "pause" -> {
         jobs.forEach(j -> j.setStatus(Status.PAUSED));
-        log.info("Paused {} jobs for user: {}", jobs.size(), user.getId());
+        log.info("Paused {} jobs for user: {}", jobs.size(), userId);
       }
       case "resume" -> {
         jobs.forEach(
             j -> {
-              if (j.getStatus() != Status.FAILED) {
-                j.setStatus(Status.PENDING);
-              }
+              if (j.getStatus() != Status.FAILED) j.setStatus(Status.PENDING);
             });
-        log.info("Resumed {} jobs for user: {}", jobs.size(), user.getId());
+        log.info("Resumed {} jobs for user: {}", jobs.size(), userId);
       }
       case "delete" -> {
-        jobs.forEach(j -> deleteJob(j.getId(), user));
-        log.info("Deleted {} jobs for user: {}", jobs.size(), user.getId());
+        jobs.forEach(j -> deleteJob(j.getId(), userId));
+        log.info("Deleted {} jobs for user: {}", jobs.size(), userId);
         return;
       }
       default -> throw new IllegalArgumentException("Invalid operation: " + operation);
@@ -434,21 +430,24 @@ public class JobService {
     jobRepository.saveAll(jobs);
   }
 
-  public List<JobResponse> searchJobs(String query, User user) {
+  public List<JobResponse> searchJobs(String query, UUID userId) {
+    User user = resolveUser(userId);
     return jobRepository.searchByOwnerAndQuery(user, query).stream()
         .filter(job -> job.getStatus() != Status.FAILED)
         .map(JobService::mapToJobResponse)
         .toList();
   }
 
-  public List<JobResponse> filterByStatus(Status status, User user) {
+  public List<JobResponse> filterByStatus(Status status, UUID userId) {
+    User user = resolveUser(userId);
     return jobRepository.findByOwnerAndStatus(user, status).stream()
         .map(JobService::mapToJobResponse)
         .toList();
   }
 
   public List<JobResponse> filterByDateRange(
-      LocalDateTime startDate, LocalDateTime endDate, User user) {
+      LocalDateTime startDate, LocalDateTime endDate, UUID userId) {
+    User user = resolveUser(userId);
     return jobRepository.findByOwnerAndDateRange(user, startDate, endDate).stream()
         .filter(job -> job.getStatus() != Status.FAILED)
         .map(JobService::mapToJobResponse)
@@ -469,42 +468,5 @@ public class JobService {
         .jobType(job.getJobType() != null ? job.getJobType().name() : null)
         .payload(job.getPayload())
         .build();
-  }
-
-  @lombok.Builder
-  @lombok.Getter
-  @lombok.AllArgsConstructor
-  public static class DeadLetterJobResponse {
-    private Long id;
-    private String jobName;
-    private String jobType;
-    private String lastError;
-    private LocalDateTime failedAt;
-    private int retryCount;
-    private int maxRetries;
-  }
-
-  @lombok.Builder
-  @lombok.Getter
-  @lombok.AllArgsConstructor
-  public static class JobHistoryResponse {
-    private Long id;
-    private LocalDateTime runTime;
-    private Status status;
-    private String errorMessage;
-    private int retryAttempt;
-  }
-
-  @lombok.Builder
-  @lombok.Getter
-  @lombok.AllArgsConstructor
-  public static class JobStatsResponse {
-    private long totalJobs;
-    private long pendingJobs;
-    private long runningJobs;
-    private long successfulJobs;
-    private long retryingJobs;
-    private long failedJobs;
-    private long deadLetterJobs;
   }
 }
