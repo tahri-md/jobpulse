@@ -80,11 +80,11 @@ public class CronExpressionUtil {
     }
 
     return switch (frequency.toUpperCase()) {
-      case "MINUTES" -> "0 */" + interval + " * * * *"; // Every X minutes
-      case "HOURS" -> "0 0 */" + interval + " * * *"; // Every X hours
-      case "DAYS" -> "0 0 0 */" + interval + " * *"; // Every X days
-      case "WEEKS" -> "0 0 0 ? * MON"; // Every week (Monday)
-      case "MONTHS" -> "0 0 0 1 * *"; // Every month (1st day)
+      case "MINUTES" -> "0 */" + interval + " * * * ? *";
+      case "HOURS" -> "0 0 */" + interval + " * * ? *";
+      case "DAYS" -> "0 0 0 */" + interval + " * ? *";
+      case "WEEKS" -> "0 0 0 ? * MON *";
+      case "MONTHS" -> "0 0 0 1 * ? *";
       default -> throw new IllegalArgumentException("Unsupported frequency: " + frequency);
     };
   }
